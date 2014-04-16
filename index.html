@@ -1,0 +1,618 @@
+<html>
+<head>
+
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
+  <link rel="stylesheet" href="/fac/arts/research/digitalhumanities/common/css/bootstrap-id6-mixin.css"/>
+    <link rel="stylesheet" href="hispanic_liverpool_app.css?[build-timestamp]" />
+  <link rel="stylesheet" href="bootstrap.min.css?[build-timestamp]" />
+  <link rel="stylesheet" href="bootstrap-theme.min.css?[build-timestamp]" />
+  <link href="http://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+  <script src="bootstrap.min.js?[build-timestamp]"></script>
+  <script language="JavaScript" type="text/javascript" src="jquery.datatables.min.js"></script>
+  <script language="JavaScript" type="text/javascript" src="datatables_bootstrap_3.js"></script>
+  <script language="JavaScript" type="text/javascript" src="underscore.js"></script>
+  <script language="JavaScript" type="text/javascript" src="backbone.js"></script>
+  <style>
+
+    </style>
+</head>
+<body>
+      <div id="pagecache" class="hidden"></div>
+  <div class="full-width">
+    <div class="container">
+      <div id="breadcrumb"></div>
+      <script type="text/template" id="breadcrumb-template">
+  		<ul class="breadcrumb">
+	      <li><a href="#list">Home</a></li>
+	        <% _.each(breadcrumbs, function(crumb, index) { %>
+	          <% if (breadcrumbs.length < index + 1) { %>
+	            <li><a href="#<%- crumb.url %>"><%- crumb.title %></a></li>
+	          <% } else { %>
+	            <li><%- crumb.title %></li>
+	          <% } %>
+	        <% }); %>
+        </ul>
+	  </script>
+      <hr />
+        <a href="#search" class="btn btn-primary"><i class="fa fa-search"></i> People Search</a>
+    <hr />
+      <div id="homepage" class="is-stackable"></div>
+      <div id="page"class=" is-stackable"></div>
+    </div>
+
+  </div>
+<script type="text/template" id="person-list-template">
+    <table class="table table-striped table-bordered" id="persons-table">
+      <thead>
+        <tr>
+          <th>Forename(s)</th><th>Surname</th><th>Gender</th><th>&nbsp;</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% _.each(persons, function(person) { %>
+          <tr>
+            <td><%- person.get('forenames') %></td>
+            <td><%- person.get('surname') %></td>
+            <td><%- person.get('gender') %></td>
+            <td><a class="btn btn-primary btn-xs" href="#view/<%= person.id %>">View Record</a></td>
+          </tr>
+        <% }); %></tbody>
+    </table>
+  </script>
+  <script type="text/template" id="view-person-template">
+  <div class="row">
+    <div class="col-sm-12">
+      <h3><i class="icon-user"></i> Individual</h3>
+      <div class="lifted card drop-shadow" id="person-details">
+        <i class="icon-spin"></i>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-12">
+      <h3 class="muted"><i class="icon-list-alt"></i> Records</h3>
+      <div class="lifted card drop-shadow" id="bibliographical-details">
+            <i class="icon-spin"></i>
+        <p class="muted">Here youll be able to see biographical records, occupations etc, in chronological order.
+      </p>
+      </div>
+      </div>
+    </div>
+    <div class="row">
+    <div class="col-sm-12">
+    <h3 class="muted"><i class="icon-resize-horizontal"></i> Relations</h3>
+    <div class="lifted card drop-shadow" id="relationships">
+    <p class="muted">Here youll be able to see the relations for this individual</p>
+          <i class="icon-spin"></i>
+    </div>
+  </div>
+  </script>
+
+
+  <script type="text/template" id="view-loading">
+    <h1 class="text-center">Loading people...<br/><i class="fa fa-spin fa-cog fa-2x"></i></h1>
+  </script>
+
+  <script type="text/template" id="view-person-partial">
+    <div class="row">
+      <div class="col-sm-6">
+        <p>Name: <%- person.get('forenames') %> <%- person.get('surname') %></p>
+        <p>Date: <%- person.get('yearonrecord') %> <%- person.get('dateonrecord') %></p>
+        <p>Gender: <%- person.get('gender') %></p>
+      </div>
+      <div class="col-sm-6">
+        <p>Citizenship: <%- person.get('citizenship') %></p>
+        <p>Country: <%- person.get('country') %></p>
+        <p>Place: <%- person.get('place') %></p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-6">
+        <p>Birth Date: <%- person.get('birthdate') %></p>
+        <p>Birth Place: <%- person.get('birthplace') %> <%- person.get('birthcountry') %></p>
+      </div>
+      <div class="col-sm-6">
+        <p>Death Date: <%- person.get('deathdate') %></p>
+        <p>Death Place: <%- person.get('deathplace') %> <%- person.get('deathcountry') %></p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-12">
+        <%- person.get('notes') %>
+      </div>
+    </div>
+  </script>
+
+  <script type="text/template" id="search-form-template">
+  <h1><i class="fa fa-search"></i>People Search</h1>
+<form id="search-form" class="form-horizontal" role="form">
+  <div class="form-group">
+    <label  class="col-sm-2 control-label col-xs-3" for="surnames">Suname(s)</label>
+    <div class="col-sm-3 col-xs-9">
+    <input type="email" class="form-control " id="surnames" name="surnames"  placeholder="accepts multiple names"></div>
+    <label class="col-sm-2 col-xs-3 control-label" for="fornames">Forename(s)</label>
+    <div class="col-sm-3 col-xs-9">
+    <input type="text" class="form-control" id="forenames" name="forenames"  placeholder="accepts multiple names"></div>
+
+  </div>  
+
+
+  <div class="form-group" >    <label class="col-sm-2 col-xs-3 control-label" for="gender" >Gender</label>
+    <div class="btn-group col-sm-10" data-toggle="buttons">
+
+    <label class="btn btn-default" >
+      <input type="checkbox" name="gender" value="m"/>M
+    </label>
+    <label class="  btn btn-default">
+      <input type="checkbox" name="gender" value="f"/>F
+    </label>
+    <label class="  btn btn-default">
+      <input type="checkbox" name="gender" value="u"/>Unknown
+      </label></div>
+  </div>
+    <div class="form-group">
+  <label class="col-sm-2 control-label col-xs-3" for="occupation">Occupation</label>
+      <div class="col-sm-3 col-xs-9"><select class="form-control">Occupation</select></div>
+  </div>
+    <hr/>
+
+    <div class="form-group">
+      <div class="col-sm-2">
+        <div class="btn-group btn-group-justified" data-toggle="buttons">
+          <label class="btn btn-default" id="birth-include">
+            <input type="radio" name="birth-death" value="0"/>Birth
+          </label>
+          <label class="  btn btn-default" id="death-include">
+            <input type="radio" name="birth-death" value="1"/>Death
+          </label>
+        </div>
+      </div>
+      <div class="col-sm-10">
+      <div>
+        <div class="form-inline" id="search-birth">
+ 
+          <div class="form-group-inline-block">
+            <div class="btn-group" data-toggle="buttons">
+              <label class="btn btn-default" id="birth-range-0">
+                <input type="radio" name="birth-range" value="0"/>Precice
+              </label>
+              <label class="  btn btn-default" id="birth-range-1">
+                <input type="radio" name="birth-range" value="1"/>Before
+              </label>
+              <label class="  btn btn-default" id="birth-range-2">
+                <input type="radio" name="birth-range" value="2"/>After
+              </label>
+              <label class="  btn btn-default" id="birth-range-3">
+                <input type="radio" name="birth-range" value="3"/>Between
+              </label>
+            </div>
+          </div>
+          <div class="form-group-inline-block">
+            <label class="sr-only control-label">Start Date</label>
+            <input type="text" class="form-control" id="birth-start" name="birth-start"  placeholder="YYYY" style="display:none" size="5" >
+          </div>
+          <div class="form-group-inline-block">
+            <label class="control-label" for="birth-end" id="birth-and" style="display:none">and</label>
+            <input type="text" class="form-control" id="birth-end" name="birth-end" placeholder="YYYY" style="display:none" size="5">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label col-xs-3" for="birth-country">Country</label>
+      <div class="btn-group col-sm-6 col-xs-9" >
+        <select class="form-control" name="birth-country">
+          <option>country</option>
+          <option>country</option>
+          <option>country</option>
+          <option>country</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label col-xs-3" for="birth-place" >Place</label>
+      <div class="btn-group col-sm-6 col-xs-9" >
+        <select class="form-control" name="birth-place">
+          <option>place</option>
+          <option>place</option>
+          <option>place</option>
+          <option>place</option>
+        </select>
+      </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+
+  <div id="search-death" class="panel panel-default">
+  <div class="panel-heading"><h4 class="panel-title"><a data-toggle="collapse" data-parent="#search-death" href="#search-death-content">Include death criteria</a></h4></div>
+    <div id="search-death-content" class="panel-collapse collapse">
+      <div class="panel-body">
+  <div class="form-group watch">
+    <label class="col-sm-2 control-label col-xs-3" for="death-range">Year</label>
+    <div class="col-sm-6 col-xs-12">
+    <div class="btn-group btn-group-justified " data-toggle="buttons">
+        <label class="btn btn-default" id="death-range-0">
+      <input type="radio" name="death-range" value="0"/>Precice
+    </label>
+    <label class="  btn btn-default"  id="death-range-1">
+      <input type="radio" name="death-range" value="1"/>Before
+    </label>
+    <label class="  btn btn-default" id="death-range-2">
+      <input type="radio" name="death-range" value="2"/>After
+      </label>
+          <label class="  btn btn-default" id="death-range-3">
+      <input type="radio" name="death-range" value="3"/>Between
+      </label>
+    </div>
+    </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10 form-inline">
+        <input type="text" class="form-control" id="death-start" name="death-start" placeholder="YYYY" style="display:none">
+
+      <label class="control-label" for="death-end" id="death-and" style="display:none">and</label>
+
+        <input type="text" class="form-control" id="death-end" name="death-end" placeholder="YYYY" style="display:none"></div>
+    </div>
+    <div class="form-group">
+      <label class="col-sm-2 control-label col-xs-3" for="death-country">Country</label>
+      <div class="col-sm-6 col-xs-9" >
+        <select class="form-control" name="death-country">
+          <option>country</option>
+          <option>country</option>
+          <option>country</option>
+          <option>country</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="col-sm-2 control-label col-xs-3" for="death-place" >Place</label>
+      <div class="col-sm-6 col-xs-9" >
+        <select class="form-control" name="death-place">
+          <option>place</option>
+          <option>place</option>
+          <option>place</option>
+          <option>place</option>
+        </select>
+      </div>
+    </div>
+    </div>
+
+    </div></div>
+      <div class="form-group form-options">
+    <div class="col-sm-offset-2 col-sm-10">
+  <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i>  Search</button>
+  <button type="reset" class="btn btn-danger" data-dismiss="modal" value="reset">Clear</button>
+
+  </div>
+</form>
+</script>
+
+  <script type="text/template" id="edit-person-template">
+    <form class="edit-user-form">
+      <legend><%= user ? 'Edit' : 'New' %>User</legend>
+        <label >First Name</label>
+        <input name="firstname" type="text" value="<%= user ? user.get('firstname') : '' %>">
+        <label>Last Name</label>
+        <input name="lastname" type="text" value="<%= user ? user.get('lastname') : '' %>">
+        <label>Age</label>
+        <input name="age" type="text" value="<%= user ? user.get('age') : '' %>">
+        <hr />
+       <button type="submit" class="btn"><%= user ? 'Update' : 'Create' %></button>
+       <% if(user) { %>
+        <input type="hidden" name="id" value="<%= user.id %>" />
+       <button data-user-id="<%= user.id %>" class="btn btn-danger delete">Delete</button>
+       <% }; %></form>
+  </script>
+
+  <script type="text/template" id="person-relationships-partial">
+  <div class="">
+      <div class="row">
+        <div class="col-sm-1"><strong>Date</strong></div>
+        <div class="col-sm-3"><strong>Surname</strong></div>
+        <div class="col-sm-3"><strong>Forenames</strong></div>
+        <div class="col-sm-3"><strong>Relationship</strong></div>
+        <div class="col-sm-2"></div>
+      </div>
+    <% _.each(relationships, function(relationship) { %>
+      <div class="row">
+        <div class="col-sm-1"><%- relationship.get('infodate') %></div>
+        <div class="col-sm-3"><%- relationship.get('surname') %></div>
+        <div class="col-sm-3"><%- relationship.get('forenames') %></div>
+        <div class="col-sm-3"><%- relationship.get('relationship') %></div>
+        <div class="col-sm-2"><a class="btn btn-primary btn-xs" href="#view/<%- relationship.get('id') %>">View Record</a></div>
+      </div>
+    <% }); %>
+    </div>
+  </script>
+
+  <script>
+
+(function($){
+
+
+    function htmlEncode(value){
+      return $('<div/>').text(value).html();
+    }
+    $.fn.serializeObject = function() {
+      var o = {};
+      var a = this.serializeArray();
+      $.each(a, function() {
+          if (o[this.name] !== undefined) {
+              if (!o[this.name].push) {
+                  o[this.name] = [o[this.name]];
+              }
+              o[this.name].push(this.value || '');
+          } else {
+              o[this.name] = this.value || '';
+          }
+      });
+      return o;
+    };
+
+    $.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
+      options.url = 'http://researchdb.warwick.ac.uk/liverpool/api'  + options.url;
+    });
+
+    var Person = Backbone.Model.extend({
+      urlRoot: '/people' 
+    });  
+
+    var People = Backbone.Collection.extend({
+      url: '/people',
+      model: Person,
+      parse: function(response){
+        return response;
+      }
+    });
+
+    var Relationship = Backbone.Model.extend({
+      urlRoot: '/relationships'
+    })
+
+    var Relationships = Backbone.Collection.extend({
+      url: function() {
+        return '/relationships/' + this.models[0].id
+      },
+      model: Relationship
+    })
+
+    var people = new People(); // create a global collection of all people
+
+    var PeopleListView = Backbone.View.extend({
+      el: '#homepage',
+      initialize: function () {
+        this.$el.html($('#view-loading').html());
+      	var that = this;
+        people.fetch({
+          dataType: 'jsonp',
+          success: function(result) {
+          	var template = _.template($('#person-list-template').html(), {persons: people.models});
+          	that.render(template);
+          }
+      	});
+      },
+      render: function (template) {
+	    var breadcrumb_template = _.template($('#breadcrumb-template').html(), {breadcrumbs: []});
+	    $('#breadcrumb').html(breadcrumb_template);
+	    $('#page').empty();
+      	if(people.length == 0) {
+          this.$el.html($('#view-loading').html());
+      	} else {
+      		if(template){
+      			this.$el.html(template);
+      			var resultsTable = $("#persons-table").dataTable( {
+  	          "sDom": "<'row'<'col-sm-6'<'form-group'l>><'col-sm-6'fi>r>t<'row'<'col-sm-12'>><'row'<'col-sm-12'p>>",
+  	          "sPaginationType": "bootstrap",
+  	          "stateSave": true,
+  	          "bFilter": false,
+  	          "aoColumnDefs": [
+  	                { "bSortable": false, "aTargets": [3] } //disable sortables on these columns (starts at 0)
+  	            ] ,
+  	          "oLanguage": {
+  	            "sLengthMenu": "_MENU_ people per page"
+  	          }
+  	      	});
+          this.$el.show(); 
+	        } else {
+	        this.$el.show(); 
+	    	}
+    	}	
+      }
+    });
+
+    var SearchFormView = Backbone.View.extend({
+      el: '#page',
+      render: function(options){
+              var template = _.template($('#breadcrumb-template').html(), {breadcrumbs: [{title:"Search",
+                url: "/search", }]});
+              $('#breadcrumb').html(template);
+            var template = _.template($('#search-form-template').html(), {});
+      this.$el.html(template);
+      },
+      events: {
+        "click div[id^=search-] label.btn":"visualDateUpdate",
+        "change input[id$=-start], input[id$=-end]": "valueDateUpdate",
+        "submit #search-form": "searchResults"
+      },
+      searchResults: function(){
+        alert("not quite ready yet");
+        return false;
+      },
+      visualDateUpdate: function(event){
+        var optionHit = $(event.currentTarget)[0].firstElementChild;
+        var set = $(optionHit)[0].name.split("-")[0];
+        var value = parseInt($(optionHit)[0].value);
+        switch(value){
+          case 0:
+            $("#" + set + "-end, #" + set + "-and").hide();
+            $("#" + set + "-start").show();
+            break;
+          case 1:
+            $("#" + set + "-start, #" + set + "-and").hide();
+            $("#" + set + "-end").show();
+            break;
+          case 2:
+            $("#" + set + "-end, #" + set + "-and").hide();
+            $("#" + set + "-start").show();
+            break;  
+          case 3:
+            $("#" + set + "-end, #" + set + "-and, #" + set + "-start").show();
+            break;       
+          default:
+            break;
+        }
+        this.valueDateUpdate(event);
+        console.log("visual");
+      },
+      valueDateUpdate: function(event){
+        console.log(event.type);
+        var set = event.currentTarget.id.split("-")[0];
+        if(event.type == "click"){
+          var optionSelected = parseInt(event.currentTarget.id.split('-')[2]);          
+        }
+        if(event.type == "change"){
+          var optionSelected = parseInt($("input[name=" + set + "-range]:checked").val()); 
+        };
+        switch(optionSelected){
+          case 0: //precice
+            if($("#"+set+"-start").val() == "0000"){
+              $("#"+set+"-start").val("");
+            }
+            $("#"+set+"-end").val($("#"+set+"-start").val());
+            break;
+          case 1: //before
+            $("#"+set+"-start").val("0000");
+            if($("#"+set+"-end").val() == "9999"){
+              $("#"+set+"-end").val("");
+            }
+            break;
+          case 2: //after
+            $("#"+set+"-end").val("9999")
+            if($("#"+set+"-start").val() == "0000"){
+              $("#"+set+"-start").val("");
+            }
+            break;
+          case 3: //between
+          console.log("evaluating: ",$("#"+set+"-start").val(),$("#"+set+"-end").val());
+            if($("#"+set+"-start").val() == "0000"){
+              $("#"+set+"-start").val("");
+            }
+            if($("#"+set+"-end").val() == "9999"){
+              $("#"+set+"-end").val("");
+            }
+            break;
+          default:
+            break;
+
+        }
+                console.log("data");      }
+   })
+
+
+
+
+    var PersonSingleView = Backbone.View.extend({
+      el: '#page',
+      fuzzyDateRenderer: function(type,date1,date2){
+      	//takes the HL way of representing fuzzy dates, and returns a formatted string. 
+        switch(type){
+          case "exactly":
+            return date1;
+            break;
+          case "between":
+            return "between " + (isset(date1)?date1:"unknown") + " and " + (isset(date2)?date2:"unknown");
+            break;
+          case "unknown":
+          case null:
+            return "unknown";
+        }
+      },
+      render: function (options) {
+        var template = _.template($('#view-person-template').html())
+        this.$el.html(template);
+
+        var that = this;
+        var person = new Person({id: options.id});
+        person.fetch({
+          dataType: 'jsonp',
+          success: function(person) {
+          	  // use some render helpers to add to the model some text to format fuzzy date types
+              person.set({ 
+                birthdate: that.fuzzyDateRenderer(person.get('birthtype'),person.get('birthdate1'),person.get('birthdate2')),
+                deathdate: that.fuzzyDateRenderer(person.get('deathtype'),person.get('deathdate1'),person.get('deathdate2'))
+                   });
+              // render the person partial 
+              var template = _.template($('#view-person-partial').html(), {person: person});
+              $("#person-details").html(template);
+
+              // now we have a name, add this to the breadcrumb
+              var template = _.template($('#breadcrumb-template').html(), {breadcrumbs: [{url: "#view/"+person.id,
+                title: person.get('forenames') + " " + person.get('surname')}]});
+              $('#breadcrumb').html(template);
+            }
+          });
+
+        //create a new relationships collection for this person
+        relationships = new Relationships({id: options.id })
+        //fetch the relationships collection with an ajax call
+        relationships.fetch({
+          dataType: 'jsonp',
+          success: function(relationships) {
+            var template;
+            //evaluate whether this person has any relationships in the collection to display
+            if(relationships.models.length > 0 ){  
+              template = _.template($('#person-relationships-partial').html(), {relationships: relationships.models});
+            } else {
+              template = "No relationships were found for " + person.get('forenames') + " " + person.get('surname') + ".";
+            }
+            $('#relationships').html(template);
+          }
+        })
+      }
+    });
+
+
+
+    var Router = Backbone.Router.extend({
+        routes: {
+          "" : "home", 
+          "view/:id": "viewPerson",
+          "new": "editPerson",
+          "list": "home",
+          "search":"searchForm"
+        }
+    });
+
+    var router = new Router;
+    //because peopleListView is special, we need to have this outside of the init router, otherwise it doesn't work when we call a subpage directly etc.
+
+    router.on('route:home', function() {
+      var peopleListView = new PeopleListView();      
+      peopleListView.render();
+    });
+
+    router.on('route:searchForm', function(){
+    	var searchFormView = new SearchFormView();
+      $('#homepage').hide();
+  		searchFormView.render();
+    });
+
+    router.on('route:viewPerson', function(id) {
+      var personSingleView = new PersonSingleView();
+      $('#homepage').hide();
+      personSingleView.render({id: id});
+    });
+
+    Backbone.history.start();
+
+
+}(jQuery)); 
+  </script>
+
+</body>
+</body>
+</html>
