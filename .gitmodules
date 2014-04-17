@@ -1,0 +1,3 @@
+[submodule "assets/lib/requirejs"]
+	path = assets/lib/requirejs
+	url = https://denseflux@github.com/jrburke/requirejs.git
