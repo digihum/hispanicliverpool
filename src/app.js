@@ -1,7 +1,5 @@
-require(["jquery","backbone","bootstrap","jquery.datatables","jquery.datatables_bootstrap_3"], function() {
-  console.log(Backbone); // is Backbone!
+require(["jquery","backbone","bootstrap",], function() {
 
-Backbone.initialize = function() {
     function htmlEncode(value){
       return $('<div/>').text(value).html();
     }
@@ -58,48 +56,56 @@ Backbone.initialize = function() {
         people.fetch({
           dataType: 'jsonp',
           success: function(result) {
-            var template = _.template($('#person-list-template').html(), {persons: people.models});
-            that.render(template);
+              require(["text!../templates/list.html.tpl"], function(template){
+                that.render(
+                  _.template(template, {persons: people.models})
+                  );
+              });
           }
         });
       },
       render: function (template) {
-      var breadcrumb_template = _.template($('#breadcrumb-template').html(), {breadcrumbs: []});
-      $('#breadcrumb').html(breadcrumb_template);
-      $('#page').empty();
-        if(people.length == 0) {
-          this.$el.html($('#view-loading').html());
-        } else {
-          if(template){
-            this.$el.html(template);
-            var resultsTable = $("#persons-table").dataTable( {
-              "sDom": "<'row'<'col-sm-6'<'form-group'l>><'col-sm-6'fi>r>t<'row'<'col-sm-12'>><'row'<'col-sm-12'p>>",
-              "sPaginationType": "bootstrap",
-              "stateSave": true,
-              "bFilter": false,
-              "aoColumnDefs": [
-                    { "bSortable": false, "aTargets": [3] } //disable sortables on these columns (starts at 0)
-                ] ,
-              "oLanguage": {
-                "sLengthMenu": "_MENU_ people per page"
-              }
-            });
-          this.$el.show(); 
+        var that = this;
+        var breadcrumb_template = _.template($('#breadcrumb-template').html(), {breadcrumbs: []});
+        $('#breadcrumb').html(breadcrumb_template);
+        $('#page').empty();
+          if(people.length == 0) {
+            this.$el.html($('#view-loading').html());
           } else {
-          this.$el.show(); 
-        }
-      } 
+            if(template){
+              require(["jquery.datatables","jquery.datatables_bootstrap_3"], function(){
+              that.$el.html(template);
+              var resultsTable = $("#persons-table").dataTable( {
+                "sDom": "<'row'<'col-sm-6'<'form-group'l>><'col-sm-6'fi>r>t<'row'<'col-sm-12'>><'row'<'col-sm-12'p>>",
+                "sPaginationType": "bootstrap",
+                "stateSave": true,
+                "bFilter": false,
+                "aoColumnDefs": [
+                      { "bSortable": false, "aTargets": [3] } //disable sortables on these columns (starts at 0)
+                  ] ,
+                "oLanguage": {
+                  "sLengthMenu": "_MENU_ people per page"
+                }
+              });
+            });
+            this.$el.show(); 
+            } else {
+            this.$el.show(); 
+          }
+        } 
       }
     });
 
     var SearchFormView = Backbone.View.extend({
       el: '#page',
       render: function(options){
-              var template = _.template($('#breadcrumb-template').html(), {breadcrumbs: [{title:"Search",
-                url: "/search", }]});
-              $('#breadcrumb').html(template);
-            var template = _.template($('#search-form-template').html(), {});
-      this.$el.html(template);
+        var that = this;
+        var templated = _.template($('#breadcrumb-template').html(), {breadcrumbs: [{title:"Search",
+          url: "/search", }]});
+        $('#breadcrumb').html(templated);
+        require(["text!../templates/search.html.tpl"], function(template){
+          that.$el.html(_.template(template));
+        });
       },
       events: {
         "click div[id^=search-] label.btn":"visualDateUpdate",
@@ -200,22 +206,28 @@ Backbone.initialize = function() {
         }
       },
       render: function (options) {
-        var template = _.template($('#view-person-template').html())
-        this.$el.html(template);
-
         var that = this;
+        require(["text!../templates/view.html.tpl"], function(template){
+          that.$el.html(_.template(template));
+        });
+
         var person = new Person({id: options.id});
         person.fetch({
           dataType: 'jsonp',
           success: function(person) {
+
               // use some render helpers to add to the model some text to format fuzzy date types
               person.set({ 
                 birthdate: that.fuzzyDateRenderer(person.get('birthtype'),person.get('birthdate1'),person.get('birthdate2')),
                 deathdate: that.fuzzyDateRenderer(person.get('deathtype'),person.get('deathdate1'),person.get('deathdate2'))
                    });
               // render the person partial 
-              var template = _.template($('#view-person-partial').html(), {person: person});
-              $("#person-details").html(template);
+
+
+              require(["text!../templates/view_details.html.tpl"], function(template){
+                $("#person-details").html(_.template(template, {person: person}));
+              });
+
 
               // now we have a name, add this to the breadcrumb
               var template = _.template($('#breadcrumb-template').html(), {breadcrumbs: [{url: "#view/"+person.id,
@@ -233,11 +245,15 @@ Backbone.initialize = function() {
             var template;
             //evaluate whether this person has any relationships in the collection to display
             if(relationships.models.length > 0 ){  
-              template = _.template($('#person-relationships-partial').html(), {relationships: relationships.models});
+              require(["text!../templates/view_relationships.html.tpl"], function(template){
+              $("#relationships").html(_.template(template, {relationships: relationships.models}));
+              });
             } else {
-              template = "No relationships were found for " + person.get('forenames') + " " + person.get('surname') + ".";
+              // can't name the person because it is loaded syncronously.
+              template = "No relationships were found.";
+              $('#relationships').html(template);
             }
-            $('#relationships').html(template);
+
           }
         })
       }
@@ -277,8 +293,5 @@ Backbone.initialize = function() {
 
     Backbone.history.start();
 
-};
-
-Backbone.initialize();
 
 });
