@@ -5,6 +5,13 @@ require.config({
   baseUrl: "assets",
   paths: {
 
+    // Directories
+    tpl: "../templates",
+    lib: "lib/",
+
+    // Location of the text plugin
+    text: "lib/plugins/text/text",
+
     // Libraries
     jquery: 'http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery',
     underscore: "lib/underscore",
@@ -12,6 +19,8 @@ require.config({
     bootstrap: "lib/bootstrap.min",
     "jquery.datatables": "lib/jquery.datatables.min",
     "jquery.datatables_bootstrap_3": "lib/datatables_bootstrap_3",
+
+    // App
     app: "../src/app"
   },
    // Sets the configuration for your third party scripts that are not AMD compatible
@@ -20,7 +29,11 @@ require.config({
       "backbone": {
           deps: ["underscore", "jquery"],
           exports: "Backbone"  //attaches "Backbone" to the window object
-      }
+      },
+      "bootstrap": ["jquery"],
+      "jquery.datatables": ["jquery"],
+      "jquery.datatables_bootstrap_3": ["jquery","bootstrap"],
+
 
   }, // end Shim Configuration
 
@@ -31,8 +44,8 @@ require.config({
 });
 
 
-require(["app"], function(Backbone) {
-  console.log(Backbone); // is Backbone!
+require(["app"], function() {
+//this loads app.js, and therefore kicks off the whole shebang!
 });
 
 /*require([

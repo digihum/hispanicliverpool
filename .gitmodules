@@ -1,3 +1,6 @@
 [submodule "assets/lib/requirejs"]
 	path = assets/lib/requirejs
 	url = https://denseflux@github.com/jrburke/requirejs.git
+[submodule "assets/lib/plugins/text"]
+	path = assets/lib/plugins/text
+	url = https://denseflux@github.com/requirejs/text.git
