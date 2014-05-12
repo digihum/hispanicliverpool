@@ -1,4 +1,4 @@
-require(["jquery","backbone","bootstrap",], function() {
+require(["jquery","underscore","backbone","bootstrap","backbonePageable"], function($,_,Backbone,Bootstrap,PageableCollection) {
 
     function htmlEncode(value){
       return $('<div/>').text(value).html();
@@ -21,6 +21,7 @@ require(["jquery","backbone","bootstrap",], function() {
 
     $.ajaxPrefilter( function( options, originalOptions, jqXHR ) {
       options.url = 'http://localhost/researchdb/html/liverpool/api'  + options.url;
+
     });
 
     var Person = Backbone.Model.extend({
@@ -34,6 +35,31 @@ require(["jquery","backbone","bootstrap",], function() {
         return response;
       }
     });
+
+    Backbone.PageableCollection = PageableCollection;
+
+     var PaginatedPeople = Backbone.PageableCollection.extend({
+      model: Person,
+      paginator_core: {
+        dataType: 'json',
+        url: '/peoplepaginated'
+      },
+      url: '/peoplepaginated',
+     state: {
+        firstPage: 1,
+        sortKey: "surname",
+        pageSize: 20,
+      },
+     
+      parse: function (response) {
+        this.state.totalRecords = response.total;
+        this.state.totalPages, this.state.lastPage = Math.ceil(response.total / this.state.pageSize);
+        return response.data;
+      }
+     
+    });
+
+
 
     var Relationship = Backbone.Model.extend({
       urlRoot: '/relationships'
@@ -53,23 +79,63 @@ require(["jquery","backbone","bootstrap",], function() {
       model: Relationship
     })
 
-    var people = new People(); // create a global collection of all people
+    var people = new PaginatedPeople(); // create a global collection of all people
 
     var PeopleListView = Backbone.View.extend({
       el: '#homepage',
       initialize: function () {
         this.$el.html($('#view-loading').html());
         var that = this;
-        people.fetch({
-          dataType: 'jsonp',
+        people.getFirstPage({
           success: function(result) {
-              require(["text!../templates/list.html.tpl"], function(template){
-                that.render(
-                  _.template(template, {persons: people.models})
-                  );
-              });
+              that.backgrid(result);
           }
         });
+      },
+      backgrid: function(people){
+        require(["backgrid","backbonePageable","backgridPaginator"], function(Backgrid,BackgridPaginator){
+        var peopleGrid = new Backgrid.Grid({
+
+          columns: [{
+            name: "surname",
+            cell: "string",
+            sortable: true,
+            editable: false
+          }, {
+            name: "forenames",
+            cell: "string",
+            sortable: true,
+            editable: false
+          }, {
+            name: "sex",
+            label: "gender",
+            cell: "string",
+            sortable: true,
+            editable: false
+          }, {
+            name: "id",
+            label:"URL",
+            cell: Backgrid.UriCell.extend({
+              events: {click: "viewPerson"}
+            }),
+            sortable: false,
+            editable: false
+          }
+          ],
+          collection: people
+        });
+
+        var $paginatorExample = $("#page");
+
+        $paginatorExample.append(peopleGrid.render().el);
+        console.log(people);
+        var paginator = new Backgrid.Extension.Paginator({
+          collection: people
+        });
+
+        $paginatorExample.append(paginator.render().el);
+
+      });
       },
       render: function (template) {
         var that = this;
