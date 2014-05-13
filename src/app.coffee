@@ -1,4 +1,10 @@
-require [ "jquery", "backbone", "bootstrap" ], ->
+require [
+  "jquery"
+  "underscore"
+  "backbone"
+  "bootstrap"
+  "backbonePageable"
+], ($, _, Backbone, Bootstrap, PageableCollection) ->
   htmlEncode = (value) ->
     $("<div/>").text(value).html()
   $.fn.serializeObject = ->
@@ -6,25 +12,25 @@ require [ "jquery", "backbone", "bootstrap" ], ->
     a = @serializeArray()
     $.each a, ->
       if o[@name] isnt `undefined`
-        o[@name] = [ o[@name] ]  unless o[@name].push
+        o[@name] = [o[@name]]  unless o[@name].push
         o[@name].push @value or ""
       else
         o[@name] = @value or ""
+      return
 
     o
 
   $.ajaxPrefilter (options, originalOptions, jqXHR) ->
-    options.url = "/researchdb/html/liverpool/api" + options.url
+    options.url = "http://localhost/researchdb/html/liverpool/api" + options.url
+    return
 
-  class Person extends Backbone.Model
-    urlRoot: "/people"
-  class People extends Backbone.Collection
-
+  Person = Backbone.Model.extend(urlRoot: "/people")
+  People = Backbone.Collection.extend(
     url: "/people"
     model: Person
-  
-  class Relationship extends Backbone.Model
-    urlRoot: "/relationships"
+    parse: (response) ->
+      response
+  )
   Backbone.PageableCollection = PageableCollection
   PaginatedPeople = Backbone.PageableCollection.extend(
     model: Person
@@ -34,8 +40,15 @@ require [ "jquery", "backbone", "bootstrap" ], ->
       sortKey: "surname"
       pageSize: 20
 
-  class Country extends Backbone.Model
-    urlRoot: "/country"
+    parse: (response) -> 
+      @state.totalRecords = response.total
+      @state.lastPage = Math.ceil(response.total / @state.pageSize)
+      response.data
+    parseRecords: (response) ->
+      response.data
+    parseState: (response) ->
+      @state.totalRecords = response.total
+      @state.lastPage = Math.ceil(response.total / @state.pageSize)
 
   )
 
@@ -46,19 +59,13 @@ require [ "jquery", "backbone", "bootstrap" ], ->
   Countries = Backbone.Collection.extend(
     url: "/countries"
     model: Country
+  )
+  Relationships = Backbone.Collection.extend(
+    url: ->
+      "/relationships/" + @models[0].id
 
-  class Relationships extends Backbone.Collection
     model: Relationship
-    url: "/relationships/" + @id
-    parse: (response) ->
-      console.log response
-      response
-
-  
-  people = new People() # create a global collection of all people
-
-  class PeopleListView extends Backbone.View
-    el: "#homepage"
+  )
   people = new PaginatedPeople() # create a global collection of all people
   PeopleListView = Backbone.View.extend(
     el: "#page"
@@ -129,33 +136,35 @@ require [ "jquery", "backbone", "bootstrap" ], ->
           @$el.show()
         else
           @$el.show()
-  
-  class SearchFormView extends Backbone.View
+      return
+  )
+  SearchFormView = Backbone.View.extend(
     el: "#page"
     render: (options) ->
-      that = @
+      that = this
       templated = _.template($("#breadcrumb-template").html(),
         breadcrumbs: [
           title: "Search"
           url: "/search"
-         ]
+        ]
       )
       $("#breadcrumb").html templated
-
-      require [ "text!../templates/search.html.tpl" ], (template) ->
+      require ["text!../templates/search.html.tpl"], (template) ->
         that.$el.html _.template(template)
+        return
 
       countries = new Countries()
-      console.log "fetch countries"
-      #fetch the countries collection with an ajax call
       countries.fetch
         dataType: "jsonp"
-        data: []
         success: (countries) ->
-          console.log "countries: ", countries
-        error: (response) ->
-          console.log response
-        reset: true
+          console.log countries.models
+          $(countries.models).each (index, country) ->
+            $("#birth-country").append $("<option></option>").attr("value", country.get("country")).text(country.get("country"))
+            return
+
+          return
+
+      return
 
     events:
       "click div[id^=search-] label.btn": "visualDateUpdate"
@@ -185,6 +194,7 @@ require [ "jquery", "backbone", "bootstrap" ], ->
         else
       @valueDateUpdate event
       console.log "visual"
+      return
 
     valueDateUpdate: (event) ->
       console.log event.type
@@ -207,9 +217,9 @@ require [ "jquery", "backbone", "bootstrap" ], ->
           $("#" + set + "-end").val ""  if $("#" + set + "-end").val() is "9999"
         else
       console.log "data"
-    @
-  
-  class PersonSingleView extends Backbone.View
+      return
+  )
+  PersonSingleView = Backbone.View.extend(
     el: "#page"
     fuzzyDateRenderer: (type, date1, date2) ->
       
@@ -224,8 +234,9 @@ require [ "jquery", "backbone", "bootstrap" ], ->
 
     render: (options) ->
       that = this
-      require [ "text!../templates/view.html.tpl" ], (template) ->
+      require ["text!../templates/view.html.tpl"], (template) ->
         that.$el.html _.template(template)
+        return
 
       person = new Person(id: options.id)
       person.fetch
@@ -239,10 +250,11 @@ require [ "jquery", "backbone", "bootstrap" ], ->
 
           
           # render the person partial 
-          require [ "text!../templates/view_details.html.tpl" ], (template) ->
+          require ["text!../templates/view_details.html.tpl"], (template) ->
             $("#person-details").html _.template(template,
               person: person
             )
+            return
 
           
           # now we have a name, add this to the breadcrumb
@@ -250,9 +262,10 @@ require [ "jquery", "backbone", "bootstrap" ], ->
             breadcrumbs: [
               url: "#view/" + person.id
               title: person.get("forenames") + " " + person.get("surname")
-             ]
+            ]
           )
           $("#breadcrumb").html template
+          return
 
       
       #create a new relationships collection for this person
@@ -266,41 +279,47 @@ require [ "jquery", "backbone", "bootstrap" ], ->
           
           #evaluate whether this person has any relationships in the collection to display
           if relationships.models.length > 0
-            require [ "text!../templates/view_relationships.html.tpl" ], (template) ->
+            require ["text!../templates/view_relationships.html.tpl"], (template) ->
               $("#relationships").html _.template(template,
                 relationships: relationships.models
               )
+              return
 
           else
             
-            # cant name the person because it is loaded syncronously.
+            # can't name the person because it is loaded syncronously.
             template = "No relationships were found."
             $("#relationships").html template
+          return
 
-  
-  class Router extends Backbone.Router
-    routes:
-      "": "home"
-      "view/:id": "viewPerson"
-      new: "editPerson"
-      list: "home"
-      search: "searchForm"
-
+      return
+  )
+  Router = Backbone.Router.extend(routes:
+    "": "home"
+    "view/:id": "viewPerson"
+    new: "editPerson"
+    list: "home"
+    search: "searchForm"
+  )
   router = new Router
   
   #because peopleListView is special, we need to have this outside of the init router, otherwise it doesn't work when we call a subpage directly etc.
   router.on "route:home", ->
     peopleListView = new PeopleListView()
     peopleListView.render()
+    return
 
   router.on "route:searchForm", ->
     searchFormView = new SearchFormView()
     $("#homepage").hide()
     searchFormView.render()
+    return
 
   router.on "route:viewPerson", (id) ->
     personSingleView = new PersonSingleView()
     $("#homepage").hide()
     personSingleView.render id: id
+    return
 
   Backbone.history.start()
+  return
