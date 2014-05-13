@@ -10,3 +10,6 @@
 [submodule "assets/lib/backgrid"]
 	path = assets/lib/backgrid
 	url = https://denseflux@github.com/wyuenho/backgrid.git
+[submodule "assets/lib/backgrid-paginator"]
+	path = assets/lib/backgrid-paginator
+	url = https://denseflux@github.com/wyuenho/backgrid-paginator.git
