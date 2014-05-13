@@ -3,7 +3,7 @@ require [
   "underscore"
   "backbone"
   "bootstrap"
-  "backbonePageable"
+  "backbonePaginator"
 ], ($, _, Backbone, Bootstrap, PageableCollection) ->
   htmlEncode = (value) ->
     $("<div/>").text(value).html()
@@ -91,7 +91,6 @@ require [
 
           require [
             "backgrid"
-            "backbonePageable"
             "backgridPaginator"
           ], (Backgrid, BackgridPaginator) ->
             peopleGrid = new Backgrid.Grid(
@@ -157,7 +156,6 @@ require [
       countries.fetch
         dataType: "jsonp"
         success: (countries) ->
-          console.log countries.models
           $(countries.models).each (index, country) ->
             $("#birth-country").append $("<option></option>").attr("value", country.get("country")).text(country.get("country"))
             return

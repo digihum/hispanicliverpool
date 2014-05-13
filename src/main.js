@@ -14,9 +14,9 @@
       underscore: "lib/underscore/underscore-min",
       backbone: "lib/backbone/backbone-min",
       bootstrap: "lib/bootstrap/bootstrap.min",
-      backbonePageable: "lib/backbone-paginator/backbone-paginator.min",
+      backbonePaginator: "lib/backbone-paginator/lib/backbone.paginator.min",
       backgrid: "lib/backgrid/lib/backgrid",
-      backgridPaginator: "lib/backgrid-paginator/lib/backgrid-paginator.min",
+      backgridPaginator: "lib/backgrid-paginator/backgrid-paginator",
       app: "../src/app"
     },
     shim: {
@@ -32,9 +32,7 @@
         deps: ["jquery", "backbone", "backgrid"],
         exports: "BackgridPaginator"
       },
-      bootstrap: ["jquery"],
-      "jquery.datatables": ["jquery"],
-      "jquery.datatables_bootstrap_3": ["jquery", "bootstrap"]
+      bootstrap: ["jquery"]
     }
   });
 
