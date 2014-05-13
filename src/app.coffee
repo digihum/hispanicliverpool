@@ -51,49 +51,73 @@ require [ "jquery", "backbone", "bootstrap" ], ->
 
   class PeopleListView extends Backbone.View
     el: "#homepage"
+  people = new PaginatedPeople() # create a global collection of all people
+  PeopleListView = Backbone.View.extend(
+    el: "#page"
     initialize: ->
       @$el.html $("#view-loading").html()
-      that = @
-      people.fetch
-        dataType: "jsonp"
-        type: "GET"
-        success: (result,b,c) ->
-          console.log result,b,c
-          require [ "text!../templates/list.html.tpl" ], (template) ->
-            that.render _.template(template,
-              persons: people.models
-            )
-        error: (a,b,c) ->
-          console.log a,b,c
-
-
-
-    render: (template) ->
-      that = @
+      that = this
+      people.getFirstPage success: (result) ->
+        that.render result
+        return
+      return
+    render: (people) ->
+      that = this
       breadcrumb_template = _.template($("#breadcrumb-template").html(),
         breadcrumbs: []
       )
       $("#breadcrumb").html breadcrumb_template
-      $("#page").empty()
-      if people.length is 0
+      @$el.empty()
+
+      if !people
         @$el.html $("#view-loading").html()
       else
-        if template
-          require [ "jquery.datatables", "jquery.datatables_bootstrap_3" ], ->
-            that.$el.html template
-            resultsTable = $("#persons-table").dataTable(
-              sDom: "<'row'<'col-sm-6'<'form-group'l>><'col-sm-6'fi>r>t<'row'<'col-sm-12'>><'row'<'col-sm-12'p>>"
-              sPaginationType: "bootstrap"
-              stateSave: true
-              bFilter: false
-              aoColumnDefs: [
-                bSortable: false #disable sortables on these columns (starts at 0)
-                aTargets: [ 3 ]
-               ]
-              oLanguage:
-                sLengthMenu: "_MENU_ people per page"
-            )
+        if people
 
+          require [
+            "backgrid"
+            "backbonePageable"
+            "backgridPaginator"
+          ], (Backgrid, BackgridPaginator) ->
+            peopleGrid = new Backgrid.Grid(
+              columns: [
+                {
+                  name: "surname"
+                  cell: "string"
+                  sortable: true
+                  editable: false
+                }
+                {
+                  name: "forenames"
+                  cell: "string"
+                  sortable: true
+                  editable: false
+                }
+                {
+                  name: "sex"
+                  label: "gender"
+                  cell: "string"
+                  sortable: true
+                  editable: false
+                }
+                {
+                  name: "id"
+                  label: "URL"
+                  cell: Backgrid.UriCell.extend(events:
+                    click: "viewPerson"
+                  )
+                  sortable: false
+                  editable: false
+                }
+              ]
+              collection: people
+            )
+            $paginatorExample = $("#page")
+            $paginatorExample.append peopleGrid.render().el
+            console.log people
+            paginator = new Backgrid.Extension.Paginator(collection: people)
+            $paginatorExample.append paginator.render().el
+            return
           @$el.show()
         else
           @$el.show()
