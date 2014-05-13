@@ -19,7 +19,7 @@ require.config
     # Libraries
     jquery: "http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery"
     underscore: "lib/underscore/underscore-min"
-    backbone: "lib/backbone/backbone"
+    backbone: "lib/backbone/backbone-min"
     bootstrap: "lib/bootstrap/bootstrap.min"
     backbonePageable: "lib/backbone-pageable/lib/backbone-pageable.min" #will be relpaced by backbone-paginator soon
     backgrid: "lib/backgrid/lib/backgrid"
