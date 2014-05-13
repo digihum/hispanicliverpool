@@ -13,7 +13,7 @@ Uses
 
 Todo
 ----
-* Move from dataTables to backgrid with paginatebackgrid http://backgridjs.com/ref/extensions/paginator.html https://github.com/backbone-paginator/backbone-pageable#playable-demos
+* ~~Move from dataTables to backgrid with paginatebackgrid http://backgridjs.com/ref/extensions/paginator.html https://github.com/backbone-paginator/backbone-pageable#playable-demos~~
 * Link up the search form
 * Consider whether modularising the main app.js will be beneficial. Currently its all in a single app.js because it was historically all on the single index.html
 *Styling improvements requested to make this whole app more compact in appearance.
