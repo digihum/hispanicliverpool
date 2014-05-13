@@ -4,6 +4,3 @@
 [submodule "assets/lib/requirejs-text"]
 	path = assets/lib/requirejs-text
 	url = https://denseflux@github.com/requirejs/text.git
-[submodule "assets/lib/underscore"]
-	path = assets/lib/underscore
-	url = https://denseflux@github.com/jashkenas/underscore.git
