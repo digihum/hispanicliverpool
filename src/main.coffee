@@ -21,9 +21,9 @@ require.config
     underscore: "lib/underscore/underscore-min"
     backbone: "lib/backbone/backbone-min"
     bootstrap: "lib/bootstrap/bootstrap.min"
-    backbonePageable: "lib/backbone-pageable/lib/backbone-pageable.min" #will be relpaced by backbone-paginator soon
+    backbonePageable: "lib/backbone-paginator/backbone-paginator.min" #will be relpaced by backbone-paginator soon
     backgrid: "lib/backgrid/lib/backgrid"
-    backgridPaginator: "lib/backgrid-paginator/backgrid-paginator.min"
+    backgridPaginator: "lib/backgrid-paginator/lib/backgrid-paginator.min"
     app: "../src/app"
 
   
