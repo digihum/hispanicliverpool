@@ -129,7 +129,7 @@ require [
             )
             $paginatorExample = $("#page")
             $paginatorExample.append peopleGrid.render().el
-            console.log people
+
             paginator = new Backgrid.Extension.Paginator(collection: people)
             $paginatorExample.append paginator.render().el
             return
