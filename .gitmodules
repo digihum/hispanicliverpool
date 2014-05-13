@@ -7,3 +7,6 @@
 [submodule "assets/lib/underscore"]
 	path = assets/lib/underscore
 	url = https://denseflux@github.com/jashkenas/underscore.git
+[submodule "assets/lib/backgrid"]
+	path = assets/lib/backgrid
+	url = https://denseflux@github.com/wyuenho/backgrid.git
