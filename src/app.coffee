@@ -25,6 +25,14 @@ require [ "jquery", "backbone", "bootstrap" ], ->
   
   class Relationship extends Backbone.Model
     urlRoot: "/relationships"
+  Backbone.PageableCollection = PageableCollection
+  PaginatedPeople = Backbone.PageableCollection.extend(
+    model: Person
+    url: "/peoplepaginated"
+    state:
+      firstPage: 1
+      sortKey: "surname"
+      pageSize: 20
 
   class Country extends Backbone.Model
     urlRoot: "/country"
