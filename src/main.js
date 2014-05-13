@@ -11,12 +11,12 @@
       lib: "lib/",
       text: "lib/requirejs-text/text",
       jquery: "http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery",
-      underscore: "lib/underscore/underscore.1.6.0.min",
+      underscore: "lib/underscore/underscore-min",
       backbone: "lib/backbone/backbone",
       bootstrap: "lib/bootstrap/bootstrap.min",
       backbonePageable: "lib/backbone-pageable/lib/backbone-pageable.min",
-      backgrid: "lib/backgrid/0.3.5/lib/backgrid.min",
-      backgridPaginator: "lib/backgrid/0.3.5/backgrid-paginator/backgrid-paginator.min",
+      backgrid: "lib/backgrid/lib/backgrid",
+      backgridPaginator: "lib/backgrid-paginator/backgrid-paginator.min",
       app: "../src/app"
     },
     shim: {
