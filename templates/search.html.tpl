@@ -75,11 +75,7 @@
     <div class="form-group">
       <label class="col-sm-2 control-label col-xs-3" for="birth-country">Country</label>
       <div class="btn-group col-sm-6 col-xs-9" >
-        <select class="form-control" name="birth-country">
-          <option>country</option>
-          <option>country</option>
-          <option>country</option>
-          <option>country</option>
+        <select class="form-control" name="birth-country" id="birth-country">
         </select>
       </div>
     </div>

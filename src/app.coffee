@@ -29,10 +29,13 @@ require [ "jquery", "backbone", "bootstrap" ], ->
   class Country extends Backbone.Model
     urlRoot: "/country"
 
-  class Countries extends Backbone.Collection
-    parse: (response) ->
-      console.log response
-      super(response)
+  )
+
+  Relationship = Backbone.Model.extend(urlRoot: "/relationships")
+
+  Country = Backbone.Model.extend()
+
+  Countries = Backbone.Collection.extend(
     url: "/countries"
     model: Country
 
