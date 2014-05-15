@@ -1,9 +1,9 @@
   <h1><i class="fa fa-search"></i>People Search</h1>
 <form id="search-form" class="form-horizontal" role="form">
   <div class="form-group">
-    <label  class="col-sm-2 control-label col-xs-3" for="surnames">Suname(s)</label>
+    <label  class="col-sm-2 control-label col-xs-3" for="surname">Suname(s)</label>
     <div class="col-sm-3 col-xs-9">
-    <input type="email" class="form-control " id="surnames" name="surnames"  placeholder="accepts multiple names"></div>
+    <input type="email" class="form-control " id="surname" name="surname"  placeholder="accepts multiple names"></div>
     <label class="col-sm-2 col-xs-3 control-label" for="fornames">Forename(s)</label>
     <div class="col-sm-3 col-xs-9">
     <input type="text" class="form-control" id="forenames" name="forenames"  placeholder="accepts multiple names"></div>
@@ -11,17 +11,17 @@
   </div>  
 
 
-  <div class="form-group" >    <label class="col-sm-2 col-xs-3 control-label" for="gender" >Gender</label>
+  <div class="form-group" >    <label class="col-sm-2 col-xs-3 control-label" for="sex" >Gender</label>
     <div class="btn-group col-sm-10" data-toggle="buttons">
 
     <label class="btn btn-default" >
-      <input type="checkbox" name="gender" value="m"/>M
+      <input type="checkbox" name="sex" value="m"/>M
     </label>
     <label class="  btn btn-default">
-      <input type="checkbox" name="gender" value="f"/>F
+      <input type="checkbox" name="sex" value="f"/>F
     </label>
     <label class="  btn btn-default">
-      <input type="checkbox" name="gender" value="u"/>Unknown
+      <input type="checkbox" name="sex" value="u"/>Unknown
       </label></div>
   </div>
     <div class="form-group">
@@ -47,17 +47,17 @@
  
           <div class="form-group-inline-block">
             <div class="btn-group" data-toggle="buttons">
-              <label class="btn btn-default" id="birth-range-0">
-                <input type="radio" name="birth-range" value="0"/>Precice
+              <label class="btn btn-default" id="birth-exactly">
+                <input type="radio" name="birthtype" value="exactly"/>Precice
               </label>
-              <label class="  btn btn-default" id="birth-range-1">
-                <input type="radio" name="birth-range" value="1"/>Before
+              <label class="  btn btn-default" id="birth-before">
+                <input type="radio" name="birthtype" value="before"/>Before
               </label>
-              <label class="  btn btn-default" id="birth-range-2">
-                <input type="radio" name="birth-range" value="2"/>After
+              <label class="  btn btn-default" id="birth-after">
+                <input type="radio" name="birthtype" value="after"/>After
               </label>
-              <label class="  btn btn-default" id="birth-range-3">
-                <input type="radio" name="birth-range" value="3"/>Between
+              <label class="  btn btn-default" id="birth-between">
+                <input type="radio" name="birthtype" value="between"/>Between
               </label>
             </div>
           </div>
@@ -100,20 +100,20 @@
     <div id="search-death-content" class="panel-collapse collapse">
       <div class="panel-body">
   <div class="form-group watch">
-    <label class="col-sm-2 control-label col-xs-3" for="death-range">Year</label>
+    <label class="col-sm-2 control-label col-xs-3" for="deathtype">Year</label>
     <div class="col-sm-6 col-xs-12">
     <div class="btn-group btn-group-justified " data-toggle="buttons">
-        <label class="btn btn-default" id="death-range-0">
-      <input type="radio" name="death-range" value="0"/>Precice
+        <label class="btn btn-default" id="death-exactly">
+      <input type="radio" name="deathtype" value="exactly"/>Precice
     </label>
-    <label class="  btn btn-default"  id="death-range-1">
-      <input type="radio" name="death-range" value="1"/>Before
+    <label class="  btn btn-default"  id="death-before">
+      <input type="radio" name="deathtype" value="before"/>Before
     </label>
-    <label class="  btn btn-default" id="death-range-2">
-      <input type="radio" name="death-range" value="2"/>After
+    <label class="  btn btn-default" id="death-after">
+      <input type="radio" name="deathtype" value="after"/>After
       </label>
-          <label class="  btn btn-default" id="death-range-3">
-      <input type="radio" name="death-range" value="3"/>Between
+          <label class="  btn btn-default" id="death-between">
+      <input type="radio" name="deathtype" value="between"/>Between
       </label>
     </div>
     </div>
@@ -130,10 +130,6 @@
       <label class="col-sm-2 control-label col-xs-3" for="death-country">Country</label>
       <div class="col-sm-6 col-xs-9" >
         <select class="form-control" name="death-country">
-          <option>country</option>
-          <option>country</option>
-          <option>country</option>
-          <option>country</option>
         </select>
       </div>
     </div>
@@ -142,10 +138,6 @@
       <label class="col-sm-2 control-label col-xs-3" for="death-place" >Place</label>
       <div class="col-sm-6 col-xs-9" >
         <select class="form-control" name="death-place">
-          <option>place</option>
-          <option>place</option>
-          <option>place</option>
-          <option>place</option>
         </select>
       </div>
     </div>
