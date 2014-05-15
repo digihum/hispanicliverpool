@@ -21,7 +21,7 @@ require [
     o
 
   $.ajaxPrefilter (options, originalOptions, jqXHR) ->
-    options.url = "http://localhost/researchdb/html/liverpool/api" + options.url
+    options.url = "http://researchdb.warwick.ac.uk/liverpool/api" + options.url
     return
 
   Person = Backbone.Model.extend(urlRoot: "/people")
@@ -31,6 +31,14 @@ require [
     parse: (response) ->
       response
   )
+  PeopleSearch = Backbone.Collection.extend(
+    url: ->
+      "/peoplesearch?" + options.querystring
+    model: Person
+    parse: (response) ->
+      response
+    )
+
   Backbone.PageableCollection = PageableCollection
   PaginatedPeople = Backbone.PageableCollection.extend(
     model: Person
@@ -72,12 +80,16 @@ require [
     initialize: ->
       @$el.html $("#view-loading").html()
       that = this
-      people.getFirstPage success: (result) ->
+
+      people.getFirstPage 
+          dataType: "jsonp"
+        success: (result) ->
+
         that.render result
         return
       return
     render: (people) ->
-      that = this
+      that = @
       breadcrumb_template = _.template($("#breadcrumb-template").html(),
         breadcrumbs: []
       )
@@ -117,8 +129,9 @@ require [
                 {
                   name: "id"
                   label: "URL"
-                  cell: Backgrid.UriCell.extend(events:
-                    click: "viewPerson"
+                  cell: Backgrid.UriCell.extend(
+                    events:
+                      click: "viewPerson"
                   )
                   sortable: false
                   editable: false
@@ -169,47 +182,52 @@ require [
       "change input[id$=-start], input[id$=-end]": "valueDateUpdate"
       "submit #search-form": "searchResults"
 
-    searchResults: ->
-      alert "not quite ready yet"
+    searchResults: (e) ->
+      e.preventDefault()
+      peopleSearchResultsView = new PeopleSearchResultsView()
+      queryString = $(e.currentTarget).serialize()
+      router.navigate "search/results?" + queryString,
+        trigger: true
+      peopleSearchResultsView.render queryString
       false
 
     visualDateUpdate: (event) ->
       optionHit = $(event.currentTarget)[0].firstElementChild
-      set = $(optionHit)[0].name.split("-")[0]
-      value = parseInt($(optionHit)[0].value)
+      set = $(optionHit)[0].name.substr(0,5) #this returns birth or death
+      value = $(optionHit)[0].value
       switch value
-        when 0
+        when "exactly"
           $("#" + set + "-end, #" + set + "-and").hide()
           $("#" + set + "-start").show()
-        when 1
+        when "before"
           $("#" + set + "-start, #" + set + "-and").hide()
           $("#" + set + "-end").show()
-        when 2
+        when "after"
           $("#" + set + "-end, #" + set + "-and").hide()
           $("#" + set + "-start").show()
-        when 3
+        when "between"
           $("#" + set + "-end, #" + set + "-and, #" + set + "-start").show()
         else
       @valueDateUpdate event
-      console.log "visual"
+      console.log value
       return
 
     valueDateUpdate: (event) ->
       console.log event.type
       set = event.currentTarget.id.split("-")[0]
       optionSelected = parseInt(event.currentTarget.id.split("-")[2])  if event.type is "click"
-      optionSelected = parseInt($("input[name=" + set + "-range]:checked").val())  if event.type is "change"
+      optionSelected = parseInt($("input[name=" + set + "type]:checked").val())  if event.type is "change"
       switch optionSelected
-        when 0 #precice
+        when "excatly" #precice
           $("#" + set + "-start").val ""  if $("#" + set + "-start").val() is "0000"
           $("#" + set + "-end").val $("#" + set + "-start").val()
-        when 1 #before
+        when "before" #before
           $("#" + set + "-start").val "0000"
           $("#" + set + "-end").val ""  if $("#" + set + "-end").val() is "9999"
-        when 2 #after
+        when "after" #after
           $("#" + set + "-end").val "9999"
           $("#" + set + "-start").val ""  if $("#" + set + "-start").val() is "0000"
-        when 3 #between
+        when "between" #between
           console.log "evaluating: ", $("#" + set + "-start").val(), $("#" + set + "-end").val()
           $("#" + set + "-start").val ""  if $("#" + set + "-start").val() is "0000"
           $("#" + set + "-end").val ""  if $("#" + set + "-end").val() is "9999"
@@ -217,6 +235,65 @@ require [
       console.log "data"
       return
   )
+
+  PeopleSearchResultsView = Backbone.View.extend(
+    el: "#page",
+    render: (querystring) ->
+      that = @
+      peopleResults = new PeopleSearch
+      peopleResults.fetch
+        #dataType: "jsonp"
+        url: "/peoplesearch?" + querystring
+        success: (people) ->
+
+          breadcrumb_template = _.template($("#breadcrumb-template").html(),
+            breadcrumbs: [{"Search"},"Results - " + people.models.length]
+          )
+          $("#breadcrumb").html breadcrumb_template
+          that.$el.empty()
+
+          require [
+            "backgrid"
+          ], (Backgrid) ->
+            peopleGrid = new Backgrid.Grid(
+              columns: [
+                {
+                  name: "surname"
+                  cell: "string"
+                  sortable: true
+                  editable: false
+                }
+                {
+                  name: "forenames"
+                  cell: "string"
+                  sortable: true
+                  editable: false
+                }
+                {
+                  name: "sex"
+                  label: "gender"
+                  cell: "string"
+                  sortable: true
+                  editable: false
+                }
+                {
+                  name: "id"
+                  label: "URL"
+                  cell: Backgrid.UriCell.extend(events:
+                    click: "viewPerson"
+                  )
+                  sortable: false
+                  editable: false
+                }
+              ]
+              collection: people
+            )
+            that.$el.append peopleGrid.render().el
+
+  )
+
+
+
   PersonSingleView = Backbone.View.extend(
     el: "#page"
     fuzzyDateRenderer: (type, date1, date2) ->
@@ -298,6 +375,8 @@ require [
     new: "editPerson"
     list: "home"
     search: "searchForm"
+    "search/results?:querystring": "viewPersonResults" #not tested, in place to permit direct access
+    "search/results": "searchForm"
   )
   router = new Router
   
@@ -309,15 +388,20 @@ require [
 
   router.on "route:searchForm", ->
     searchFormView = new SearchFormView()
-    $("#homepage").hide()
     searchFormView.render()
     return
 
   router.on "route:viewPerson", (id) ->
     personSingleView = new PersonSingleView()
-    $("#homepage").hide()
     personSingleView.render id: id
     return
+
+  router.on "route:viewPersonResults", (querystring) ->
+    console.log querystring
+    peopleSearchResultsView = new PeopleSearchResultsView()
+    peopleSearchResultsView.render querystring
+    return
+
 
   Backbone.history.start()
   return
