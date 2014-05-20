@@ -40,6 +40,7 @@ require [
     )
 
   Backbone.PageableCollection = PageableCollection
+
   PaginatedPeople = Backbone.PageableCollection.extend(
     model: Person
     url: "/peoplepaginated"
@@ -49,15 +50,15 @@ require [
       pageSize: 20
 
     parse: (response) -> 
-      @state.totalRecords = response.total
+      @state.totalRecords = parseInt(response.total)
       @state.lastPage = Math.ceil(response.total / @state.pageSize)
       response.data
     parseRecords: (response) ->
       response.data
     parseState: (response) ->
-      @state.totalRecords = response.total
+      @state.totalRecords = parseInt(response.total)
       @state.lastPage = Math.ceil(response.total / @state.pageSize)
-
+      @state
   )
 
   Relationship = Backbone.Model.extend(urlRoot: "/relationships")
