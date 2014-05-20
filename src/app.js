@@ -219,7 +219,7 @@
         router.navigate("search/results?" + queryString, {
           trigger: true
         });
-        peopleSearchResultsView.render(queryString);
+        peopleSearchResultsView.search(queryString);
         return false;
       },
       visualDateUpdate: function(event) {
