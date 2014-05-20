@@ -69,26 +69,29 @@ require [
     url: "/countries"
     model: Country
   )
+
+  Occupations = Backbone.Collection.extend url: "/occupations"
+
   Relationships = Backbone.Collection.extend(
     url: ->
       "/relationships/" + @models[0].id
 
     model: Relationship
   )
-  people = new PaginatedPeople() # create a global collection of all people
+
   PeopleListView = Backbone.View.extend(
     el: "#page"
     initialize: ->
+      that = @
       @$el.html $("#view-loading").html()
-      that = this
+      people = new PaginatedPeople()
+      $.when people.getFirstPage 
+        dataType: "jsonp"
+        error: (args) ->
+            console.log arguments
+      .done ->
+        that.render(people)
 
-      people.getFirstPage 
-          dataType: "jsonp"
-        success: (result) ->
-
-        that.render result
-        return
-      return
     render: (people) ->
       that = @
       breadcrumb_template = _.template($("#breadcrumb-template").html(),
@@ -173,9 +176,16 @@ require [
           $(countries.models).each (index, country) ->
             $("#birth-country").append $("<option></option>").attr("value", country.get("country")).text(country.get("country"))
             return
-
           return
 
+      occupations = new Occupations()
+      occupations.fetch
+        dataType: "jsonp"
+        success: (occupations) ->
+          $(occupations.models).each (index, occupation) ->
+            $("#occupation-category").append $("<option></option>").attr("value", occupation.get("category")).text(occupation.get("category"))
+            return
+          return
       return
 
     events:
@@ -237,59 +247,69 @@ require [
       return
   )
 
+
+
   PeopleSearchResultsView = Backbone.View.extend(
     el: "#page",
-    render: (querystring) ->
+    initialize: ->
+      @peopleResults = new PeopleSearch
+      @createBackGrid()
+    createBackGrid: ->
       that = @
-      peopleResults = new PeopleSearch
-      peopleResults.fetch
-        #dataType: "jsonp"
+      require ["backgrid"], (Backgrid) ->
+        ClickableRow = Backgrid.Row.extend({
+          events: 
+            "click" : "rowClicked"
+          rowClicked: ->
+            router.navigate "view/" + this.model.get("id"),
+              trigger: true
+   
+          
+        });
+        that.peopleGrid = new Backgrid.Grid(
+          row: ClickableRow
+          columns: [
+            {
+              name: "surname"
+              cell: "string"
+              sortable: true
+              editable: false
+            }
+            {
+              name: "forenames"
+              cell: "string"
+              sortable: true
+              editable: false
+            }
+            {
+              name: "sex"
+              label: "gender"
+              cell: "string"
+              sortable: true
+              editable: false
+            }
+          ],
+          collection: that.peopleResults
+        )
+    search: (querystring) ->
+      that = @
+      $.when @peopleResults.fetch
+        dataType: "jsonp"
         url: "/peoplesearch?" + querystring
-        success: (people) ->
+      .done ->
+        that.render()
+    render: ->
+      that = @
+      breadcrumb_template = _.template($("#breadcrumb-template").html(),
+        breadcrumbs: [url: "#search",title: "People Search"]
+      )
+      breadcrumb_template = _.template($("#breadcrumb-template").html(),
+        breadcrumbs: [{url: "#search",title: "People Search"},{url: "",title:"Showing search results (" + that.peopleResults.length + ")"}]
+      )
+      $("#breadcrumb").html breadcrumb_template
+      @$el.empty()
 
-          breadcrumb_template = _.template($("#breadcrumb-template").html(),
-            breadcrumbs: [{"Search"},"Results - " + people.models.length]
-          )
-          $("#breadcrumb").html breadcrumb_template
-          that.$el.empty()
-
-          require [
-            "backgrid"
-          ], (Backgrid) ->
-            peopleGrid = new Backgrid.Grid(
-              columns: [
-                {
-                  name: "surname"
-                  cell: "string"
-                  sortable: true
-                  editable: false
-                }
-                {
-                  name: "forenames"
-                  cell: "string"
-                  sortable: true
-                  editable: false
-                }
-                {
-                  name: "sex"
-                  label: "gender"
-                  cell: "string"
-                  sortable: true
-                  editable: false
-                }
-                {
-                  name: "id"
-                  label: "URL"
-                  cell: Backgrid.UriCell.extend(events:
-                    click: "viewPerson"
-                  )
-                  sortable: false
-                  editable: false
-                }
-              ]
-              collection: people
-            )
-            that.$el.append peopleGrid.render().el
+      @$el.append @peopleGrid.render().el
 
   )
 
@@ -384,7 +404,6 @@ require [
   #because peopleListView is special, we need to have this outside of the init router, otherwise it doesn't work when we call a subpage directly etc.
   router.on "route:home", ->
     peopleListView = new PeopleListView()
-    peopleListView.render()
     return
 
   router.on "route:searchForm", ->
@@ -398,9 +417,8 @@ require [
     return
 
   router.on "route:viewPersonResults", (querystring) ->
-    console.log querystring
     peopleSearchResultsView = new PeopleSearchResultsView()
-    peopleSearchResultsView.render querystring
+    peopleSearchResultsView.search querystring
     return
 
 
