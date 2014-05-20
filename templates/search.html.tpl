@@ -3,7 +3,7 @@
   <div class="form-group">
     <label  class="col-sm-2 control-label col-xs-3" for="surname">Suname(s)</label>
     <div class="col-sm-3 col-xs-9">
-    <input type="email" class="form-control " id="surname" name="surname"  placeholder="accepts multiple names"></div>
+    <input type="text" class="form-control " id="surname" name="surname"  placeholder="accepts multiple names"></div>
     <label class="col-sm-2 col-xs-3 control-label" for="fornames">Forename(s)</label>
     <div class="col-sm-3 col-xs-9">
     <input type="text" class="form-control" id="forenames" name="forenames"  placeholder="accepts multiple names"></div>
@@ -21,12 +21,12 @@
       <input type="checkbox" name="sex" value="f"/>F
     </label>
     <label class="  btn btn-default">
-      <input type="checkbox" name="sex" value="u"/>Unknown
+      <input type="checkbox" name="sex" value="unknonwn"/>Unknown
       </label></div>
   </div>
     <div class="form-group">
   <label class="col-sm-2 control-label col-xs-3" for="occupation">Occupation</label>
-      <div class="col-sm-3 col-xs-9"><select class="form-control">Occupation</select></div>
+  <div class="col-sm-3 col-xs-9"><select class="form-control" name="occupation-category" id="occupation-category"><option value="">-- select occupation type --</option></select></div>
   </div>
     <hr/>
 
@@ -75,7 +75,8 @@
     <div class="form-group">
       <label class="col-sm-2 control-label col-xs-3" for="birth-country">Country</label>
       <div class="btn-group col-sm-6 col-xs-9" >
-        <select class="form-control" name="birth-country" id="birth-country">
+        <select placeholder="select a birth country" class="form-control" name="birth-country" id="birth-country">
+                    <option value=""> -- select a country -- </option>
         </select>
       </div>
     </div>
