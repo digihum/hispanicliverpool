@@ -206,7 +206,7 @@ require [
       queryString = $(e.currentTarget).serialize()
       router.navigate "search/results?" + queryString,
         trigger: true
-      peopleSearchResultsView.render queryString
+      peopleSearchResultsView.search queryString
       false
 
     visualDateUpdate: (event) ->
