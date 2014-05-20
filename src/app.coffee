@@ -109,7 +109,14 @@ require [
             "backgrid"
             "backgridPaginator"
           ], (Backgrid, BackgridPaginator) ->
+            ClickableRow = Backgrid.Row.extend
+              events: 
+                "click": "rowClicked"
+              rowClicked: ->
+                return router.navigate "view/" + this.model.get("id"), { trigger: true }
+            
             peopleGrid = new Backgrid.Grid(
+              row: ClickableRow
               columns: [
                 {
                   name: "surname"
@@ -254,18 +261,27 @@ require [
     initialize: ->
       @peopleResults = new PeopleSearch
       @createBackGrid()
+
     createBackGrid: ->
       that = @
       require ["backgrid"], (Backgrid) ->
-        ClickableRow = Backgrid.Row.extend({
-          events: 
-            "click" : "rowClicked"
-          rowClicked: ->
-            router.navigate "view/" + this.model.get("id"),
-              trigger: true
-   
-          
-        });
+        myCell = Backgrid.Cell.extend 
+                viewingPerson: ->
+                  console.log "clicked"
+                  e.preventDefault();
+                  return router.navigate "view/" + this.model.get("id"), 
+                    trigger: true
+                render: ->
+                  @$el.html("<button class='btn btn-primary btn-xs'>Records</button>")
+                  return @
+                events: 
+                  "click": "viewingPerson"
+         ClickableRow = Backgrid.Row.extend
+            events:
+              "click": "rowClicked"
+            rowClicked: ->
+              return router.navigate "view/" + this.model.get("id"), { trigger: true }
+
         that.peopleGrid = new Backgrid.Grid(
           row: ClickableRow
           columns: [
@@ -287,6 +303,10 @@ require [
               cell: "string"
               sortable: true
               editable: false
+            }
+            {
+              className: "button"
+              cell: myCell 
             }
           ],
           collection: that.peopleResults

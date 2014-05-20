@@ -112,8 +112,19 @@
         } else {
           if (people) {
             require(["backgrid", "backgridPaginator"], function(Backgrid, BackgridPaginator) {
-              var $paginatorExample, paginator, peopleGrid;
+              var $paginatorExample, ClickableRow, paginator, peopleGrid;
+              ClickableRow = Backgrid.Row.extend({
+                events: {
+                  "click": "rowClicked"
+                },
+                rowClicked: function() {
+                  return router.navigate("view/" + this.model.get("id"), {
+                    trigger: true
+                  });
+                }
+              });
               peopleGrid = new Backgrid.Grid({
+                row: ClickableRow,
                 columns: [
                   {
                     name: "surname",
@@ -288,7 +299,23 @@
         var that;
         that = this;
         return require(["backgrid"], function(Backgrid) {
-          var ClickableRow;
+          var ClickableRow, myCell;
+          myCell = Backgrid.Cell.extend({
+            viewingPerson: function() {
+              console.log("clicked");
+              e.preventDefault();
+              return router.navigate("view/" + this.model.get("id"), {
+                trigger: true
+              });
+            },
+            render: function() {
+              this.$el.html("<button class='btn btn-primary btn-xs'>Records</button>");
+              return this;
+            },
+            events: {
+              "click": "viewingPerson"
+            }
+          });
           ClickableRow = Backgrid.Row.extend({
             events: {
               "click": "rowClicked"
@@ -318,6 +345,9 @@
                 cell: "string",
                 sortable: true,
                 editable: false
+              }, {
+                className: "button",
+                cell: myCell
               }
             ],
             collection: that.peopleResults
