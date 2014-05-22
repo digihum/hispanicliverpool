@@ -59,6 +59,10 @@ position: relative;
 z-index: 1 !important;
 }
 
+.inline-block {
+  display:inline-block;
+}
+
 /* sort table */
 
 table.table thead .sorting,

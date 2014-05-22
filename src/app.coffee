@@ -198,7 +198,9 @@ require [
     events:
       "click div[id^=search-] label.btn": "visualDateUpdate"
       "change input[id$=-start], input[id$=-end]": "valueDateUpdate"
+      "click label[id$=-include]": "dateSelectorUpdate"
       "submit #search-form": "searchResults"
+      "change select[name=birth-country]": "placesLookup"
 
     searchResults: (e) ->
       e.preventDefault()
@@ -209,11 +211,20 @@ require [
       peopleSearchResultsView.search queryString
       false
 
+    dateSelectorUpdate: (event) ->
+      #reset
+      $("#birth-start, #birth-and, #death-start, #death-and").hide()
+      $("input[name^=date-type]:checked").each ->
+        @.checked = false;
+      $("label.disabled").removeClass("disabled")
+      return true
+
     visualDateUpdate: (event) ->
       optionHit = $(event.currentTarget)[0].firstElementChild
-      set = $(optionHit)[0].name.substr(0,5) #this returns birth or death
-      value = $(optionHit)[0].value
-      switch value
+      set = $("input[name='birth-death']:checked").val() #this returns birth or death
+      unset = $("input[name='birth-death']:not(:checked)").val() #this returns birth or death
+
+      switch optionHit.value
         when "exactly"
           $("#" + set + "-end, #" + set + "-and").hide()
           $("#" + set + "-start").show()
@@ -227,11 +238,10 @@ require [
           $("#" + set + "-end, #" + set + "-and, #" + set + "-start").show()
         else
       @valueDateUpdate event
-      console.log value
       return
 
     valueDateUpdate: (event) ->
-      console.log event.type
+
       set = event.currentTarget.id.split("-")[0]
       optionSelected = parseInt(event.currentTarget.id.split("-")[2])  if event.type is "click"
       optionSelected = parseInt($("input[name=" + set + "type]:checked").val())  if event.type is "change"
