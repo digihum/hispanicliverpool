@@ -63,7 +63,23 @@ require [
 
   Relationship = Backbone.Model.extend(urlRoot: "/relationships")
 
-  Country = Backbone.Model.extend()
+  Place = Backbone.Model.extend
+
+  Places = Backbone.Collection.extend
+    model: Place
+    parse: (response)->
+      console.log @, response, "parsing place"
+      response
+  
+ 
+
+  Country = Backbone.Model.extend
+    initialize: ->
+      @places = new Places
+      @places.url = '/placesfor/' + this.get("country")
+    parse: (response) ->
+      console.log @, response, "parsing country"
+      response
 
   Countries = Backbone.Collection.extend(
     url: "/countries"
@@ -176,12 +192,12 @@ require [
         that.$el.html _.template(template)
         return
 
-      countries = new Countries()
-      countries.fetch
+      @countries = new Countries()
+      @countries.fetch
         dataType: "jsonp"
         success: (countries) ->
           $(countries.models).each (index, country) ->
-            $("#birth-country").append $("<option></option>").attr("value", country.get("country")).text(country.get("country"))
+            $("#birth-country").append $("<option></option>").attr("value", country.cid).text(country.get("country"))
             return
           return
 
@@ -190,7 +206,7 @@ require [
         dataType: "jsonp"
         success: (occupations) ->
           $(occupations.models).each (index, occupation) ->
-            $("#occupation-category").append $("<option></option>").attr("value", occupation.get("category")).text(occupation.get("category"))
+            $("#occupation-category").append $("<option></option>").attr("value", occupation.get("category")).attr("data-id",occupation.get("id")).text(occupation.get("category"))
             return
           return
       return
@@ -260,8 +276,25 @@ require [
           $("#" + set + "-start").val ""  if $("#" + set + "-start").val() is "0000"
           $("#" + set + "-end").val ""  if $("#" + set + "-end").val() is "9999"
         else
-      console.log "data"
+
       return
+
+    placesLookup: (event) ->
+      #$(event.currentTarget).children("option:selected")[0].value
+      that = @
+      @country = @countries.get $(event.currentTarget).children("option:selected")[0].value
+
+      @country.places.fetch #initiates a fetch with this specific country
+        silent: true
+        dataType: "jsonp"
+        success: (places) ->
+          console.log places
+          $("#birth-place").empty()
+          $(countries.models).each (index, country) ->
+
+            $("#birth-place").append $("<option></option>").attr("value", place.get("place")).text(country.get("place"))
+            return
+          return
   )
 
 
