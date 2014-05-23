@@ -4,6 +4,7 @@ require [
   "backbone"
   "bootstrap"
   "backbonePaginator"
+  "backboneRelational"
 ], ($, _, Backbone, Bootstrap, PageableCollection) ->
   htmlEncode = (value) ->
     $("<div/>").text(value).html()
