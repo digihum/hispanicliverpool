@@ -127,14 +127,16 @@ require [
   )
 
 
-  Place = Backbone.Model.extend
+  Place = Backbone.RelationalModel.extend(
+      idAttribute: 'place'
+    )
 
-  Places = Backbone.Collection.extend
+  Places = Backbone.Collection.extend(
     model: Place
     parse: (response)->
       console.log @, response, "parsing place"
       response
-  
+  )
  
 
   Country = Backbone.RelationalModel.extend(
@@ -282,7 +284,7 @@ require [
       "change input[id$=-start], input[id$=-end]": "valueDateUpdate"
       "click label[id$=-include]": "dateSelectorUpdate"
       "submit #search-form": "searchResults"
-      "change select[name=birth-country]": "placesLookup"
+      "change select[name=birth-country]": "placesUpdate"
 
     searchResults: (e) ->
       e.preventDefault()
@@ -345,22 +347,34 @@ require [
 
       return
 
-    placesLookup: (event) ->
-      #$(event.currentTarget).children("option:selected")[0].value
+    placesUpdate: (event) ->
       that = @
       @country = @countries.get $(event.currentTarget).children("option:selected")[0].value
-
-      @country.places.fetch #initiates a fetch with this specific country
-        silent: true
-        dataType: "jsonp"
-        success: (places) ->
-          console.log places
-          $("#birth-place").empty()
-          $(countries.models).each (index, country) ->
-
-            $("#birth-place").append $("<option></option>").attr("value", place.get("place")).text(country.get("place"))
-            return
-          return
+      switch @country.get("places").models.length
+        when 1
+          $("select[name=birth-place]")
+            .empty()
+            .attr("disabled",true)
+          $.each(@country.get("places").models
+            (index, place) ->
+              $("select[name=birth-place]").append $("<option></option>").attr("value", place.get("place")).text(place.get("place"))
+          )
+        when 0
+          $("select[name=birth-place]")
+            .empty()
+            .attr("disabled",true)
+        else
+          $("select[name=birth-place]")
+            .empty()
+            .attr("disabled",false)
+            .append $("<option></option>").attr("value", "").text("-- " + @country.get("places").models.length + " places within " + @country.get("country") + "--" )
+          $.each(@country.get("places").models
+            (index, place) ->
+              $("select[name=birth-place]").append $("<option></option>").attr("value", place.get("place")).text(place.get("place"))
+          )
+      initialize: ->
+        _.bindAll(@,'render','placesLookup')
+        @model.bind('change:places', @placesLookup)
   )
 
 
@@ -435,6 +449,7 @@ require [
         breadcrumbs: [{url: "#search",title: "People Search"},{url: "",title:"Showing search results (" + that.peopleResults.length + ")"}]
       )
       $("#breadcrumb").html breadcrumb_template
+
       @$el.empty()
 
       @$el.append @peopleGrid.render().el

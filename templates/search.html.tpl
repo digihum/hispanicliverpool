@@ -99,11 +99,7 @@
     <div class="form-group">
       <label class="col-sm-2 control-label col-xs-3" for="birth-place" >Place</label>
       <div class="btn-group col-sm-6 col-xs-9" >
-        <select class="form-control" name="birth-place">
-          <option>place</option>
-          <option>place</option>
-          <option>place</option>
-          <option>place</option>
+        <select class="form-control" name="birth-place" disabled="true">
         </select>
       </div>
     </div>
