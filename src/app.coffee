@@ -25,17 +25,81 @@ require [
     options.url = "http://researchdb.warwick.ac.uk/liverpool/api" + options.url
     return
 
-  Person = Backbone.Model.extend(urlRoot: "/people")
+  Address = Backbone.RelationalModel.extend()
+  Addresses = Backbone.Collection.extend(
+    model: Address
+  )
+
+  Occupation = Backbone.RelationalModel.extend()
+  Occupations = Backbone.Collection.extend 
+    url: "/occupations"
+    model: Occupation
+
+  Relationship = Backbone.RelationalModel.extend()
+
+  Relationships = Backbone.Collection.extend(
+    url: ->
+      "/relationships/" + @models[0].id
+    model: Relationship
+  )
+
+  FlatPerson = Backbone.Model.extend()
+
+  Person = Backbone.RelationalModel.extend(
+    urlRoot: "/people"
+    relations: [
+      type: Backbone.HasMany
+      key: 'relationships'
+      relatedModel: Relationship
+      collectionType: Occupations
+      reverseRelation: 
+        key: 'person',
+        includeInJSON: 'id'
+    ,
+      type: Backbone.HasMany
+      key: 'occupations'
+      relatedModel: Occupation
+      collectionType: Occupations
+      reverseRelation: 
+        key: 'person',
+        includeInJSON: 'id'
+    ,
+      type: Backbone.HasMany
+      key: 'addresses'
+      relatedModel: Address
+      collectionType: Addresses
+      reverseRelation: 
+        key: 'person',
+        includeInJSON: 'id'
+    ]
+    parse: (response) ->
+          # use some render helpers to add to the model some text to format fuzzy date types
+      @.birthdate = @fuzzyDateMaker @birthtype, @birthdate1, @birthdate2
+      @.deathdate = @fuzzyDateMaker @deathtype, @deathdate1, @deathdate2
+
+      response
+    fuzzyDateMaker: (type, date1, date2) ->
+      
+      #takes the HL way of representing fuzzy dates, and returns a formatted string. 
+      switch type
+        when "exactly"
+          return date1
+        when "between"
+          return "between " + ((if isset(date1) then date1 else "unknown")) + " and " + ((if isset(date2) then date2 else "unknown"))
+        when "unknown", null
+          "unknown"
+    )
+
   People = Backbone.Collection.extend(
     url: "/people"
-    model: Person
+    model: FlatPerson
     parse: (response) ->
       response
   )
   PeopleSearch = Backbone.Collection.extend(
     url: ->
       "/peoplesearch?" + options.querystring
-    model: Person
+    model: FlatPerson
     parse: (response) ->
       response
     )
@@ -43,7 +107,7 @@ require [
   Backbone.PageableCollection = PageableCollection
 
   PaginatedPeople = Backbone.PageableCollection.extend(
-    model: Person
+    model: FlatPerson
     url: "/peoplepaginated"
     state:
       firstPage: 1
@@ -87,14 +151,9 @@ require [
     model: Country
   )
 
-  Occupations = Backbone.Collection.extend url: "/occupations"
 
-  Relationships = Backbone.Collection.extend(
-    url: ->
-      "/relationships/" + @models[0].id
 
-    model: Relationship
-  )
+
 
   PeopleListView = Backbone.View.extend(
     el: "#page"
