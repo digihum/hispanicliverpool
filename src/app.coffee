@@ -126,7 +126,6 @@ require [
       @state
   )
 
-  Relationship = Backbone.Model.extend(urlRoot: "/relationships")
 
   Place = Backbone.Model.extend
 
