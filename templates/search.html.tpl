@@ -89,17 +89,17 @@
     </div>
 
     <div class="form-group">
-      <label class="col-sm-2 control-label col-xs-3" for="birth-country">Country</label>
+      <label class="col-sm-2 control-label col-xs-3" for="birthCountry">Country</label>
       <div class="btn-group col-sm-6 col-xs-9" >
-        <select placeholder="select a birth country" class="form-control" name="birth-country" id="birth-country">
+        <select placeholder="select a birth country" class="form-control" name="birthCountry" id="birthCountry">
                     <option value=""> -- select a country -- </option>
         </select>
       </div>
     </div>
     <div class="form-group">
-      <label class="col-sm-2 control-label col-xs-3" for="birth-place" >Place</label>
+      <label class="col-sm-2 control-label col-xs-3" for="birthPlace" >Place</label>
       <div class="btn-group col-sm-6 col-xs-9" >
-        <select class="form-control" name="birth-place" disabled="true">
+        <select class="form-control" name="birthPlace" disabled="true">
         </select>
       </div>
     </div>

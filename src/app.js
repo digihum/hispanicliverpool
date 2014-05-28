@@ -274,7 +274,7 @@
           dataType: "jsonp",
           success: function(countries) {
             $(countries.models).each(function(index, country) {
-              $("#birth-country").append($("<option></option>").attr("value", country.cid).text(country.get("country")));
+              $("select[name=birthCountry]").append($("<option></option>").attr("value", country.get("country")).text(country.get("country")));
             });
           }
         });
@@ -293,11 +293,12 @@
         "change input[id$=-start], input[id$=-end]": "valueDateUpdate",
         "click label[id$=-include]": "dateSelectorUpdate",
         "submit #search-form": "searchResults",
-        "change select[name=birth-country]": "placesUpdate"
+        "change select[name=birthCountry]": "placesUpdate"
       },
       searchResults: function(e) {
         var peopleSearchResultsView, queryString;
         e.preventDefault();
+        this.$el.html($("#view-loading").html());
         peopleSearchResultsView = new PeopleSearchResultsView();
         queryString = $(e.currentTarget).serialize();
         router.navigate("search/results?" + queryString, {
@@ -380,21 +381,23 @@
       placesUpdate: function(event) {
         var that;
         that = this;
-        this.country = this.countries.get($(event.currentTarget).children("option:selected")[0].value);
+        this.country = this.countries.findWhere({
+          country: $(event.currentTarget).children("option:selected")[0].value
+        });
         switch (this.country.get("places").models.length) {
           case 1:
-            $("select[name=birth-place]").empty().attr("disabled", true);
+            $("select[name=birthPlace]").empty().attr("disabled", true);
             $.each(this.country.get("places").models, function(index, place) {
-              return $("select[name=birth-place]").append($("<option></option>").attr("value", place.get("place")).text(place.get("place")));
+              return $("select[name=birthPlace]").append($("<option></option>").attr("value", place.get("place")).text(place.get("place")));
             });
             break;
           case 0:
-            $("select[name=birth-place]").empty().attr("disabled", true);
+            $("select[name=birthPlace]").empty().attr("disabled", true);
             break;
           default:
-            $("select[name=birth-place]").empty().attr("disabled", false).append($("<option></option>").attr("value", "").text("-- " + this.country.get("places").models.length + " places within " + this.country.get("country") + "--"));
+            $("select[name=birthPlace]").empty().attr("disabled", false).append($("<option></option>").attr("value", "").text("-- " + this.country.get("places").models.length + " places within " + this.country.get("country") + " --"));
             $.each(this.country.get("places").models, function(index, place) {
-              return $("select[name=birth-place]").append($("<option></option>").attr("value", place.get("place")).text(place.get("place")));
+              return $("select[name=birthPlace]").append($("<option></option>").attr("value", place.get("place")).text(place.get("place")));
             });
         }
         return {
@@ -408,6 +411,7 @@
     PeopleSearchResultsView = Backbone.View.extend({
       el: "#page",
       initialize: function() {
+        this.$el.html($("#view-loading").html());
         this.peopleResults = new PeopleSearch;
         return this.createBackGrid();
       },

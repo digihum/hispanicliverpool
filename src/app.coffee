@@ -265,7 +265,7 @@ require [
         dataType: "jsonp"
         success: (countries) ->
           $(countries.models).each (index, country) ->
-            $("#birth-country").append $("<option></option>").attr("value", country.cid).text(country.get("country"))
+            $("select[name=birthCountry]").append $("<option></option>").attr("value", country.get("country")).text(country.get("country"))
             return
           return
 
@@ -284,10 +284,11 @@ require [
       "change input[id$=-start], input[id$=-end]": "valueDateUpdate"
       "click label[id$=-include]": "dateSelectorUpdate"
       "submit #search-form": "searchResults"
-      "change select[name=birth-country]": "placesUpdate"
+      "change select[name=birthCountry]": "placesUpdate"
 
     searchResults: (e) ->
       e.preventDefault()
+      @$el.html $("#view-loading").html()
       peopleSearchResultsView = new PeopleSearchResultsView()
       queryString = $(e.currentTarget).serialize()
       router.navigate "search/results?" + queryString,
@@ -349,28 +350,28 @@ require [
 
     placesUpdate: (event) ->
       that = @
-      @country = @countries.get $(event.currentTarget).children("option:selected")[0].value
+      @country = @countries.findWhere country: $(event.currentTarget).children("option:selected")[0].value
       switch @country.get("places").models.length
         when 1
-          $("select[name=birth-place]")
+          $("select[name=birthPlace]")
             .empty()
             .attr("disabled",true)
           $.each(@country.get("places").models
             (index, place) ->
-              $("select[name=birth-place]").append $("<option></option>").attr("value", place.get("place")).text(place.get("place"))
+              $("select[name=birthPlace]").append $("<option></option>").attr("value", place.get("place")).text(place.get("place"))
           )
         when 0
-          $("select[name=birth-place]")
+          $("select[name=birthPlace]")
             .empty()
             .attr("disabled",true)
         else
-          $("select[name=birth-place]")
+          $("select[name=birthPlace]")
             .empty()
             .attr("disabled",false)
-            .append $("<option></option>").attr("value", "").text("-- " + @country.get("places").models.length + " places within " + @country.get("country") + "--" )
+            .append $("<option></option>").attr("value", "").text("-- " + @country.get("places").models.length + " places within " + @country.get("country") + " --" )
           $.each(@country.get("places").models
             (index, place) ->
-              $("select[name=birth-place]").append $("<option></option>").attr("value", place.get("place")).text(place.get("place"))
+              $("select[name=birthPlace]").append $("<option></option>").attr("value", place.get("place")).text(place.get("place"))
           )
       initialize: ->
         _.bindAll(@,'render','placesLookup')
@@ -382,6 +383,7 @@ require [
   PeopleSearchResultsView = Backbone.View.extend(
     el: "#page",
     initialize: ->
+      @$el.html $("#view-loading").html()
       @peopleResults = new PeopleSearch
       @createBackGrid()
 
