@@ -372,8 +372,7 @@ require [
       that = @
       require ["backgrid"], (Backgrid) ->
         myCell = Backgrid.Cell.extend 
-                viewingPerson: ->
-                  console.log "clicked"
+                viewingPerson: (e) ->
                   e.preventDefault();
                   return router.navigate "view/" + this.model.get("id"), 
                     trigger: true
@@ -443,78 +442,53 @@ require [
 
   PersonSingleView = Backbone.View.extend(
     el: "#page"
-    fuzzyDateRenderer: (type, date1, date2) ->
-      
-      #takes the HL way of representing fuzzy dates, and returns a formatted string. 
-      switch type
-        when "exactly"
-          return date1
-        when "between"
-          return "between " + ((if isset(date1) then date1 else "unknown")) + " and " + ((if isset(date2) then date2 else "unknown"))
-        when "unknown", null
-          "unknown"
+    initialize: ->
+      @listenTo @model, 'change', @.render
+
+      @model.fetch
+        dataType: "jsonp"
 
     render: (options) ->
-      that = this
+      that = @
       require ["text!../templates/view.html.tpl"], (template) ->
         that.$el.html _.template(template)
         return
-
-      person = new Person(id: options.id)
-      person.fetch
-        dataType: "jsonp"
-        success: (person) ->
+      # render the person partial 
+      require ["text!../templates/view_details.html.tpl"], (template) ->
+        $("#person-details").html _.template(template,
+          person: that.model
+        )
+        return
           
-          # use some render helpers to add to the model some text to format fuzzy date types
-          person.set
-            birthdate: that.fuzzyDateRenderer(person.get("birthtype"), person.get("birthdate1"), person.get("birthdate2"))
-            deathdate: that.fuzzyDateRenderer(person.get("deathtype"), person.get("deathdate1"), person.get("deathdate2"))
+      # now we have a name, add this to the breadcrumb
+      template = _.template($("#breadcrumb-template").html(),
+        breadcrumbs: [
+          url: "#view/" + @model.get("id")
+          title: @model.get("forenames") + " " + @model.get("surname")
+        ]
+      )
+      $("#breadcrumb").html template
 
+
+      if @model.get("relationships").models.length > 0
+        require ["text!../templates/view_relationships.html.tpl"], (template) ->
+          $("#relationships").html _.template template,
+            relationships: that.model.get("relationships").models
           
-          # render the person partial 
-          require ["text!../templates/view_details.html.tpl"], (template) ->
-            $("#person-details").html _.template(template,
-              person: person
-            )
-            return
+      else
+        # can't name the person because it is loaded syncronously.
+        template = "No relationships were found for " + @model.get("forenames") + "."
+        $("#relationships").html template
 
-          
-          # now we have a name, add this to the breadcrumb
-          template = _.template($("#breadcrumb-template").html(),
-            breadcrumbs: [
-              url: "#view/" + person.id
-              title: person.get("forenames") + " " + person.get("surname")
-            ]
-          )
-          $("#breadcrumb").html template
-          return
-
-      
-      #create a new relationships collection for this person
-      relationships = new Relationships(id: options.id)
-      
-      #fetch the relationships collection with an ajax call
-      relationships.fetch
-        dataType: "jsonp"
-        success: (relationships) ->
-          template = undefined
-          
-          #evaluate whether this person has any relationships in the collection to display
-          if relationships.models.length > 0
-            require ["text!../templates/view_relationships.html.tpl"], (template) ->
-              $("#relationships").html _.template(template,
-                relationships: relationships.models
-              )
-              return
-
-          else
-            
-            # can't name the person because it is loaded syncronously.
-            template = "No relationships were found."
-            $("#relationships").html template
-          return
-
-      return
+      if @model.get("occupations").models.length > 0
+        require ["text!../templates/view_occupation.html.tpl"], (template) ->
+          $("#bibliographical-details").append _.template template,
+            occupations: that.model.get("occupations").models
+      if @model.get("addresses").models.length > 0
+        require ["text!../templates/view_address.html.tpl"], (template) ->
+          $("#bibliographical-details").append _.template template,
+            addresses: that.model.get("addresses").models
+    
   )
   Router = Backbone.Router.extend(routes:
     "": "home"
@@ -538,8 +512,10 @@ require [
     return
 
   router.on "route:viewPerson", (id) ->
-    personSingleView = new PersonSingleView()
-    personSingleView.render id: id
+    if person = Person.findModel {id: id} 
+    else
+      person = new Person id: id
+    personSingleView = new PersonSingleView({model: person})
     return
 
   router.on "route:viewPersonResults", (querystring) ->
