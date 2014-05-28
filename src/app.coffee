@@ -138,16 +138,20 @@ require [
   
  
 
-  Country = Backbone.Model.extend
-    initialize: ->
-      @places = new Places
-      @places.url = '/placesfor/' + this.get("country")
+  Country = Backbone.RelationalModel.extend(
+    relations: [
+      type: Backbone.HasMany
+      key: 'places'
+      relatedModel: Place
+      reverseRelation: 
+          key: 'country'
+      ]
     parse: (response) ->
-      console.log @, response, "parsing country"
       response
+  )
 
   Countries = Backbone.Collection.extend(
-    url: "/countries"
+    url: "/countriesfull"
     model: Country
   )
 
