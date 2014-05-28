@@ -126,6 +126,16 @@ require [
             "backgrid"
             "backgridPaginator"
           ], (Backgrid, BackgridPaginator) ->
+            myCell = Backgrid.Cell.extend 
+              viewingPerson: (e) ->
+                e.preventDefault();
+                return router.navigate "view/" + this.model.get("id"), 
+                  trigger: true
+              render: ->
+                @$el.html("<button class='btn btn-primary btn-xs'>Records</button>")
+                return @
+              events: 
+                "click": "viewingPerson"
             ClickableRow = Backgrid.Row.extend
               events: 
                 "click": "rowClicked"
@@ -155,14 +165,7 @@ require [
                   editable: false
                 }
                 {
-                  name: "id"
-                  label: "URL"
-                  cell: Backgrid.UriCell.extend(
-                    events:
-                      click: "viewPerson"
-                  )
-                  sortable: false
-                  editable: false
+                  cell: myCell
                 }
               ]
               collection: people
