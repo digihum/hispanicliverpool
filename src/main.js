@@ -17,6 +17,7 @@
       backbonePaginator: "lib/backbone-paginator/lib/backbone.paginator.min",
       backgrid: "lib/backgrid/lib/backgrid",
       backgridPaginator: "lib/backgrid-paginator/backgrid-paginator",
+      backboneRelational: "lib/backbone-relational/backbone-relational",
       app: "../src/app"
     },
     shim: {
