@@ -25,6 +25,7 @@ require.config
     backgrid: "lib/backgrid/lib/backgrid"
     backgridPaginator: "lib/backgrid-paginator/backgrid-paginator" #the minified version seems to have an issue.
     backboneRelational: "lib/backbone-relational/backbone-relational"
+    leaflet: "http://cdn.leafletjs.com/leaflet-0.4/leaflet"
     app: "../src/app"
 
   

@@ -514,6 +514,22 @@ require [
           $("#bibliographical-details").append _.template template,
             addresses: that.model.get("addresses").models
 
+            that.mapView = new MapView();
+            that.mapView.render();
+            _.each that.model.get("addresses").models, (address) ->
+              if address.get("latitude") && address.get("longitude")
+                #use an existing geocode
+                that.mapView.addMarker(address.get("latitude"),address.get("longitude"))
+              else
+                #create a new geocode
+                geocode = new GeoCode
+                  id: address.get("query")
+                geocode.fetchFind dataType: "jsonp"
+                that.listenTo geocode, 'change', that.addMarker
+    addMarker: (geocode)->
+      console.log @model
+      #popupContent = "Source: " + address.get("recordtype") + "(" + address.get("recorddate") + ")<br/> " + address.get("query") 
+      @mapView.addMarker(geocode.get("latitude"),geocode.get("longitude"), geocode.get("id") )
   )
 
   MapView = Backbone.View.extend
@@ -540,6 +556,23 @@ require [
           .bindPopup(popupContent).openPopup();
         @.map.setView [lat, long], 15
         $(that.el).show()
+
+  GeoCode = Backbone.Model.extend(
+    urlRoot: "http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/"
+    parse: (response) ->
+      geocode = {}
+      if response.locations.length > 0
+        geocode.longitude = response.locations[0].feature.geometry.x || ''
+        geocode.latitude = response.locations[0].feature.geometry.y || ''
+
+      geocode
+    fetchFind: (options) ->
+        options = options || {};
+        if options.url == undefined
+            options.url = @urlRoot + "find?f=pjson&text=" + @id;
+
+        return Backbone.Model.prototype.fetch.call this, options
+  )
 
   Router = Backbone.Router.extend(routes:
     "": "home"
