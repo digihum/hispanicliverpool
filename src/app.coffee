@@ -466,10 +466,9 @@ require [
 
 
   PersonSingleView = Backbone.View.extend(
-    el: "#page"
+    el: "#page",
     initialize: ->
       @listenTo @model, 'change', @.render
-
       @model.fetch
         dataType: "jsonp"
 
@@ -509,11 +508,12 @@ require [
         require ["text!../templates/view_occupation.html.tpl"], (template) ->
           $("#bibliographical-details").append _.template template,
             occupations: that.model.get("occupations").models
+
       if @model.get("addresses").models.length > 0
         require ["text!../templates/view_address.html.tpl"], (template) ->
           $("#bibliographical-details").append _.template template,
             addresses: that.model.get("addresses").models
-    
+
   )
   Router = Backbone.Router.extend(routes:
     "": "home"
