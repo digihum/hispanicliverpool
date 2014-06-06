@@ -18,6 +18,7 @@
       backgrid: "lib/backgrid/lib/backgrid",
       backgridPaginator: "lib/backgrid-paginator/backgrid-paginator",
       backboneRelational: "lib/backbone-relational/backbone-relational",
+      leaflet: "http://cdn.leafletjs.com/leaflet-0.4/leaflet",
       app: "../src/app"
     },
     shim: {
