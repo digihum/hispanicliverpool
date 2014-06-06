@@ -22,11 +22,12 @@ require [
     o
 
   $.ajaxPrefilter (options, originalOptions, jqXHR) ->
-    options.url = "http://researchdb.warwick.ac.uk/liverpool/api" + options.url
     if options.url.split(":")[0] != "http"
+      options.url = "http://researchdb.warwick.ac.uk/liverpool/api" + options.url
     return
 
   Address = Backbone.RelationalModel.extend()
+
   Addresses = Backbone.Collection.extend(
     model: Address
   )
@@ -163,10 +164,6 @@ require [
     url: "/countriesfull"
     model: Country
   )
-
-
-
-
 
   PeopleListView = Backbone.View.extend(
     el: "#page"
