@@ -515,6 +515,32 @@ require [
             addresses: that.model.get("addresses").models
 
   )
+
+  MapView = Backbone.View.extend
+    el: "#address-map"
+    initialize: ->
+      require ["leaflet"], ->
+        @.map = L.map "address-map"
+          .setView [0, 0], 10
+    render: (options) -> 
+      that = @
+      require ["leaflet"], ->
+        L.tileLayer 'http://{s}.tiles.mapbox.com/v3/steveranford.icifhpgl/{z}/{x}/{y}.png',
+          attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
+          maxZoom: 18
+        .addTo @.map
+        console.log @el
+        $(that.el).hide()
+    addMarker: (lat,long,popupContent) ->
+      that = @
+      require ["leaflet"], ->
+        location = L.latLng lat,long
+        L.marker location
+          .addTo(@.map)
+          .bindPopup(popupContent).openPopup();
+        @.map.setView [lat, long], 15
+        $(that.el).show()
+
   Router = Backbone.Router.extend(routes:
     "": "home"
     "view/:id": "viewPerson"
