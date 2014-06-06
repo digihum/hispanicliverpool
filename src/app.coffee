@@ -23,6 +23,7 @@ require [
 
   $.ajaxPrefilter (options, originalOptions, jqXHR) ->
     options.url = "http://researchdb.warwick.ac.uk/liverpool/api" + options.url
+    if options.url.split(":")[0] != "http"
     return
 
   Address = Backbone.RelationalModel.extend()
@@ -76,7 +77,14 @@ require [
           # use some render helpers to add to the model some text to format fuzzy date types
       @.birthdate = @fuzzyDateMaker @birthtype, @birthdate1, @birthdate2
       @.deathdate = @fuzzyDateMaker @deathtype, @deathdate1, @deathdate2
-
+      _.each response.addresses, (address) ->
+        query = []
+        query.push address.address.split(",")[1].trim() + " " + address.address.split(",")[0].trim() #street
+        #address.district != "" && query.push address.district currently causes failed lookup
+        query.push "Liverpool"
+        address.region != "" && query.push address.region
+        address.country != "" && query.push address.country
+        address.query = query.join ", "
       response
     fuzzyDateMaker: (type, date1, date2) ->
       
