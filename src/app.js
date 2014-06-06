@@ -588,7 +588,6 @@
         }
       },
       addMarker: function(geocode) {
-        console.log(this.model);
         return this.mapView.addMarker(geocode.get("latitude"), geocode.get("longitude"), geocode.get("id"));
       }
     });

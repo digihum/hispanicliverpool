@@ -527,7 +527,6 @@ require [
                 geocode.fetchFind dataType: "jsonp"
                 that.listenTo geocode, 'change', that.addMarker
     addMarker: (geocode)->
-      console.log @model
       #popupContent = "Source: " + address.get("recordtype") + "(" + address.get("recorddate") + ")<br/> " + address.get("query") 
       @mapView.addMarker(geocode.get("latitude"),geocode.get("longitude"), geocode.get("id") )
   )
