@@ -496,13 +496,9 @@ require [
 
       if @model.get("relationships").models.length > 0
         require ["text!../templates/view_relationships.html.tpl"], (template) ->
-          $("#relationships").html _.template template,
+          $("#relationships").empty().html _.template template,
             relationships: that.model.get("relationships").models
-          
-      else
-        # can't name the person because it is loaded syncronously.
-        template = "No relationships were found for " + @model.get("forenames") + "."
-        $("#relationships").html template
+
 
       if @model.get("occupations").models.length > 0
         require ["text!../templates/view_occupation.html.tpl"], (template) ->
@@ -544,7 +540,6 @@ require [
           attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>'
           maxZoom: 18
         .addTo @.map
-        console.log @el
         $(that.el).hide()
     addMarker: (lat,long,popupContent) ->
       that = @
