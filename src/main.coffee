@@ -1,9 +1,8 @@
 # Set the require.js configuration for your application.
 require.config
-  
+  baseUrl: "src"
   # Initialize the application with the main application file
   deps: ["main"]
-  baseUrl: "assets"
   defnine:
     underscore: "lib/underscore"
 
@@ -11,23 +10,22 @@ require.config
     
     # Directories
     tpl: "../templates"
-    lib: "lib/"
+    lib: "../assets/lib"
     
     # Location of the text plugin
-    text: "lib/requirejs-text/text"
+    text: "../assets/lib/requirejs-text/text"
     
     # Libraries
-    jquery: "lib/jquery"
-    underscore: "lib/underscore/underscore-min"
-    backbone: "lib/backbone/backbone-min"
-    bootstrap: "lib/bootstrap/bootstrap.min"
-    backbonePaginator: "lib/backbone-paginator/lib/backbone.paginator.min"
-    backgrid: "lib/backgrid/lib/backgrid"
-    backgridPaginator: "lib/backgrid-paginator/backgrid-paginator" #the minified version seems to have an issue.
-    backboneRelational: "lib/backbone-relational/backbone-relational"
+    jquery: "../assets/lib/jquery/dist/jquery.min"
+    underscore: "../assets/lib/underscore/underscore-min"
+    backbone: "../assets/lib/backbone/backbone-min"
+    bootstrap: "../assets/lib/bootstrap/bootstrap.min"
+    backbonePaginator: "../assets/lib/backbone-paginator/lib/backbone.paginator.min"
+    backgrid: "../assets/lib/backgrid/lib/backgrid"
+    backgridPaginator: "../assets/lib/backgrid-paginator/backgrid-paginator" #the minified version seems to have an issue.
+    backboneRelational: "../assets/lib/backbone-relational/backbone-relational"
     leaflet: "http://cdn.leafletjs.com/leaflet-0.4/leaflet"
-    app: "../src/app"
-    main: "../src/main"
+    # causing issues: app: "../src" #picked-up
   
   # Sets the configuration for your third party scripts that are not AMD compatible
   shim:
