@@ -17,7 +17,7 @@ require.config
     text: "lib/requirejs-text/text"
     
     # Libraries
-    jquery: "http://cdnjs.cloudflare.com/ajax/libs/jquery/1.11.0/jquery"
+    jquery: "lib/jquery"
     underscore: "lib/underscore/underscore-min"
     backbone: "lib/backbone/backbone-min"
     bootstrap: "lib/bootstrap/bootstrap.min"
@@ -27,7 +27,7 @@ require.config
     backboneRelational: "lib/backbone-relational/backbone-relational"
     leaflet: "http://cdn.leafletjs.com/leaflet-0.4/leaflet"
     app: "../src/app"
-
+    main: "../src/main"
   
   # Sets the configuration for your third party scripts that are not AMD compatible
   shim:
