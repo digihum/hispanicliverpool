@@ -205,7 +205,8 @@ require [
             "backgrid"
             "backgrid-paginator"
           ], (Backgrid, BackgridPaginator) ->
-            myCell = Backgrid.Cell.extend 
+            myCell = Backgrid.Cell.extend
+              className: "results col-sm-1" 
               viewingPerson: (e) ->
                 e.preventDefault();
                 return router.navigate "view/" + this.model.get("id"), 
@@ -220,26 +221,34 @@ require [
                 "click": "rowClicked"
               rowClicked: ->
                 return router.navigate "view/" + this.model.get("id"), { trigger: true }
-            
+            genderCell = Backgrid.Cell.extend
+              className: "gender-cell col-sm-5" 
+            forenamesCell = Backgrid.Cell.extend
+              className: "forenames-cell col-sm-3" 
+            surnameCell = Backgrid.Cell.extend
+              className: "surname-cell col-sm-3" 
             peopleGrid = new Backgrid.Grid(
+              className: "table table-striped table-condensed"
               row: ClickableRow
               columns: [
                 {
                   name: "surname"
+                  label: "Surname"
                   cell: "string"
                   sortable: true
                   editable: false
                 }
                 {
                   name: "forenames"
-                  cell: "string"
+                  label: "Forename(s)"
+                  cell: forenamesCell
                   sortable: true
                   editable: false
                 }
                 {
-                  name: "gender"
-                  label: "gender"
-                  cell: "string"
+                  name: "sex"
+                  label: "Gender"
+                  cell: genderCell
                   sortable: true
                   editable: false
                 }
@@ -420,25 +429,34 @@ require [
               "click": "rowClicked"
             rowClicked: ->
               return router.navigate "view/" + this.model.get("id"), { trigger: true }
-
+        genderCell = Backgrid.Cell.extend
+          className: "gender-cell col-sm-5" 
+        forenamesCell = Backgrid.Cell.extend
+          className: "forenames-cell col-sm-3" 
+        surnameCell = Backgrid.Cell.extend
+          className: "surname-cell col-sm-3" 
         that.peopleGrid = new Backgrid.Grid(
+          className: "table table-condensed table-striped" 
           row: ClickableRow
           columns: [
             {
               name: "surname"
+              label: "Surname"
               cell: "string"
               sortable: true
               editable: false
             }
             {
               name: "forenames"
+              label: "Forename(s)"
               cell: "string"
               sortable: true
               editable: false
             }
             {
-              name: "gender"
-              label: "gender"
+              name: "sex"
+              label: "Gender"
+              className: "gender"
               cell: "string"
               sortable: true
               editable: false
@@ -446,6 +464,7 @@ require [
             {
               className: "button"
               cell: myCell 
+              editable: false
             }
           ],
           collection: that.peopleResults
