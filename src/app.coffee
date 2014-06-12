@@ -3,8 +3,8 @@ require [
   "underscore"
   "backbone"
   "bootstrap"
-  "backbonePaginator"
-  "backboneRelational"
+  "backbone-paginator"
+  "backbone-relational"
 ], ($, _, Backbone, Bootstrap, PageableCollection) ->
   htmlEncode = (value) ->
     $("<div/>").text(value).html()
@@ -193,7 +193,7 @@ require [
 
           require [
             "backgrid"
-            "backgridPaginator"
+            "backgrid-paginator"
           ], (Backgrid, BackgridPaginator) ->
             myCell = Backgrid.Cell.extend 
               viewingPerson: (e) ->

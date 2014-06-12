@@ -20,38 +20,17 @@ require.config
     underscore: "../assets/lib/underscore/underscore-min"
     backbone: "../assets/lib/backbone/backbone-min"
     bootstrap: "../assets/lib/bootstrap/bootstrap.min"
-    backbonePaginator: "../assets/lib/backbone-paginator/lib/backbone.paginator.min"
+    "backbone-paginator": "../assets/lib/backbone-paginator/lib/backbone.paginator.min"
     backgrid: "../assets/lib/backgrid/lib/backgrid"
-    backgridPaginator: "../assets/lib/backgrid-paginator/backgrid-paginator" #the minified version seems to have an issue.
-    backboneRelational: "../assets/lib/backbone-relational/backbone-relational"
+    "backgrid-paginator": "../assets/lib/backgrid-paginator/backgrid-paginator" #the minified version seems to have an issue.
+    "backbone-relational": "../assets/lib/backbone-relational/backbone-relational"
     leaflet: "http://cdn.leafletjs.com/leaflet-0.4/leaflet"
     # causing issues: app: "../src" #picked-up
   
   # Sets the configuration for your third party scripts that are not AMD compatible
   shim:
-    backbone:
-      deps: [
-        "underscore"
-        "jquery"
-      ]
-      exports: "Backbone" #attaches "Backbone" to the window object
-
-    backgrid:
-      deps: [
-        "jquery"
-        "backbone"
-      ]
-      exports: "Backgrid"
-
-    backgridPaginator:
-      deps: [
-        "jquery"
-        "backbone"
-        "backgrid"
-      ]
-      exports: "BackgridPaginator"
-
     bootstrap: ["jquery"]
+
 
 # end Shim Configuration
 
