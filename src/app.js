@@ -76,8 +76,9 @@
         }
       ],
       parse: function(response) {
-        this.birthdate = this.fuzzyDateMaker(this.birthtype, this.birthdate1, this.birthdate2);
-        this.deathdate = this.fuzzyDateMaker(this.deathtype, this.deathdate1, this.deathdate2);
+        response.birthdate = this.fuzzyDateMaker(response.birthtype, response.birthdate1, response.birthdate2);
+        response.deathdate = this.fuzzyDateMaker(response.deathtype, response.deathdate1, response.deathdate2);
+        response.gender = this.genderMaker(response.sex);
         _.each(response.addresses, function(address) {
           var query;
           query = [];
@@ -98,6 +99,18 @@
           case "unknown":
           case null:
             return "unknown";
+        }
+      },
+      genderMaker: function(sex) {
+        switch (sex) {
+          case "m":
+            return "Male";
+          case "f":
+            return "Female";
+          case "":
+          case "unknown":
+          case null:
+            return "Unknown";
         }
       }
     });
@@ -238,7 +251,7 @@
                     sortable: true,
                     editable: false
                   }, {
-                    name: "sex",
+                    name: "gender",
                     label: "gender",
                     cell: "string",
                     sortable: true,
@@ -470,7 +483,7 @@
                 sortable: true,
                 editable: false
               }, {
-                name: "sex",
+                name: "gender",
                 label: "gender",
                 cell: "string",
                 sortable: true,
@@ -558,6 +571,7 @@
         }
         if (this.model.get("occupations").models.length > 0) {
           require(["text!../templates/view_occupation.html.tpl"], function(template) {
+            $("#bibliographical-details .loading").remove();
             return $("#bibliographical-details").append(_.template(template, {
               occupations: that.model.get("occupations").models
             }));

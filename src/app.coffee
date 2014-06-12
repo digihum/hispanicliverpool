@@ -76,8 +76,10 @@ require [
     ]
     parse: (response) ->
           # use some render helpers to add to the model some text to format fuzzy date types
-      @.birthdate = @fuzzyDateMaker @birthtype, @birthdate1, @birthdate2
-      @.deathdate = @fuzzyDateMaker @deathtype, @deathdate1, @deathdate2
+
+      response.birthdate = @fuzzyDateMaker response.birthtype, response.birthdate1, response.birthdate2
+      response.deathdate = @fuzzyDateMaker response.deathtype, response.deathdate1, response.deathdate2
+      response.gender = @genderMaker response.sex
       _.each response.addresses, (address) ->
         query = []
         query.push address.address.split(",")[1].trim() + " " + address.address.split(",")[0].trim() #street
@@ -96,7 +98,15 @@ require [
         when "between"
           return "between " + ((if isset(date1) then date1 else "unknown")) + " and " + ((if isset(date2) then date2 else "unknown"))
         when "unknown", null
-          "unknown"
+          return "unknown"
+    genderMaker: (sex) ->
+      switch sex
+        when "m"
+          return "Male"
+        when "f"
+          return "Female"
+        when "","unknown", null
+          return "Unknown"
     )
 
   People = Backbone.Collection.extend(
@@ -227,7 +237,7 @@ require [
                   editable: false
                 }
                 {
-                  name: "sex"
+                  name: "gender"
                   label: "gender"
                   cell: "string"
                   sortable: true
@@ -427,7 +437,7 @@ require [
               editable: false
             }
             {
-              name: "sex"
+              name: "gender"
               label: "gender"
               cell: "string"
               sortable: true
@@ -502,6 +512,7 @@ require [
 
       if @model.get("occupations").models.length > 0
         require ["text!../templates/view_occupation.html.tpl"], (template) ->
+          $("#bibliographical-details .loading").remove();
           $("#bibliographical-details").append _.template template,
             occupations: that.model.get("occupations").models
 

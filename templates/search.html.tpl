@@ -1,7 +1,7 @@
   <h1><i class="fa fa-search"></i>People Search</h1>
 <form id="search-form" class="form-horizontal" role="form">
   <div class="form-group">
-    <label  class="col-sm-2 control-label col-xs-3" for="surname">Suname(s)</label>
+    <label  class="col-sm-2 control-label col-xs-3" for="surname">Surname(s)</label>
     <div class="col-sm-3 col-xs-9">
     <input type="text" class="form-control " id="surname" name="surname"  placeholder="accepts multiple names"></div>
     <label class="col-sm-2 col-xs-3 control-label" for="fornames">Forename(s)</label>
@@ -19,10 +19,7 @@
     </label>
     <label class="  btn btn-default">
       <input type="checkbox" name="sex" value="f"/>F
-    </label>
-    <label class="  btn btn-default">
-      <input type="checkbox" name="sex" value="unknown"/>Unknown
-      </label></div>
+    </label></div>
   </div>
     <div class="form-group">
   <label class="col-sm-2 control-label col-xs-3" for="occupation">Occupation</label>
