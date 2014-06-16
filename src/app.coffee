@@ -26,6 +26,8 @@ require [
       options.url = "http://researchdb.warwick.ac.uk/liverpool/api" + options.url
     return
 
+  app = @ #sets a top level this
+
   Address = Backbone.RelationalModel.extend()
 
   Addresses = Backbone.Collection.extend(
@@ -145,7 +147,6 @@ require [
       @state
   )
 
-
   Place = Backbone.RelationalModel.extend(
       idAttribute: 'place'
     )
@@ -178,28 +179,24 @@ require [
   PeopleListView = Backbone.View.extend(
     el: "#page"
     initialize: ->
-      that = @
-      @$el.html $("#view-loading").html()
-      people = new PaginatedPeople()
-      $.when people.getFirstPage 
-        dataType: "jsonp"
-        error: (args) ->
-            console.log arguments
-      .done ->
-        that.render(people)
+      @listenTo(app.paginatedPeople,"sync",@render)
 
-    render: (people) ->
-      that = @
+      @$el.html $("#view-loading").html()
+
+    breadcrumb: (collection)->
       breadcrumb_template = _.template($("#breadcrumb-template").html(),
-        breadcrumbs: []
+        breadcrumbs: [{url: "",title: "Page " + collection.state.currentPage.toString() + " of " + collection.state.lastPage }]
       )
       $("#breadcrumb").html breadcrumb_template
+    render: () ->
+      that = @
+      @breadcrumb(paginatedPeople);
       @$el.empty()
 
-      if !people
+      if !paginatedPeople
         @$el.html $("#view-loading").html()
       else
-        if people
+        if paginatedPeople
 
           require [
             "backgrid"
@@ -256,13 +253,21 @@ require [
                   cell: myCell
                 }
               ]
-              collection: people
+              collection: paginatedPeople
             )
             $paginatorExample = $("#page")
             $paginatorExample.append peopleGrid.render().el
 
-            paginator = new Backgrid.Extension.Paginator(collection: people)
+            paginator = new Backgrid.Extension.Paginator collection: paginatedPeople
             $paginatorExample.append paginator.render().el
+
+            paginator.listenTo(paginatedPeople,"reset", () ->
+              router.navigate "list/page/" + @collection.state.currentPage.toString(),
+                trigger: false
+              that.breadcrumb(@collection)
+              return
+            )
+
             return
           @$el.show()
         else
@@ -602,7 +607,9 @@ require [
     "": "home"
     "view/:id": "viewPerson"
     new: "editPerson"
+    "list/page/:page": "listPage"
     list: "home"
+
     search: "searchForm"
     "search/results?:querystring": "viewPersonResults" #not tested, in place to permit direct access
     "search/results": "searchForm"
@@ -611,7 +618,17 @@ require [
   
   #because peopleListView is special, we need to have this outside of the init router, otherwise it doesn't work when we call a subpage directly etc.
   router.on "route:home", ->
+    app.paginatedPeople = new PaginatedPeople() #needs to create a paginated people
     peopleListView = new PeopleListView()
+    app.paginatedPeople.getFirstPage
+      dataType: "jsonp"
+    return
+
+  router.on "route:listPage", (page) ->
+    app.paginatedPeople = new PaginatedPeople() #assumes that this is only called when a new request
+    peopleListView = new PeopleListView()
+    app.paginatedPeople.getPage parseInt(page),
+      dataType: "jsonp"
     return
 
   router.on "route:searchForm", ->
