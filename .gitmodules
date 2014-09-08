@@ -25,3 +25,6 @@
 [submodule "assets/lib/jquery"]
 	path = assets/lib/jquery
 	url = https://github.com/jquery/jquery.git
+[submodule "assets/lib/backbone-facetr"]
+	path = assets/lib/backbone-facetr
+	url = git@github.com:arillo/Backbone.Facetr.git

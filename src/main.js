@@ -14,7 +14,7 @@
       underscore: "../assets/lib/underscore/underscore-min",
       backbone: "../assets/lib/backbone/backbone-min",
       bootstrap: "../assets/lib/bootstrap/bootstrap.min",
-      "backbone-paginator": "../assets/lib/backbone-paginator/lib/backbone.paginator.min",
+      "backbone.paginator": "../assets/lib/backbone-paginator/lib/backbone.paginator.min",
       backgrid: "../assets/lib/backgrid/lib/backgrid",
       "backgrid-paginator": "../assets/lib/backgrid-paginator/backgrid-paginator",
       "backbone-relational": "../assets/lib/backbone-relational/backbone-relational",

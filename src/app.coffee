@@ -3,7 +3,7 @@ require [
   "underscore"
   "backbone"
   "bootstrap"
-  "backbone-paginator"
+  "backbone.paginator"
   "backbone-relational"
 ], ($, _, Backbone, Bootstrap, PageableCollection) ->
   htmlEncode = (value) ->
@@ -119,6 +119,7 @@ require [
   )
   PeopleSearch = Backbone.Collection.extend(
     url: ->
+      console.log options #doesn't seem to be used.
       "/peoplesearch?" + options.querystring
     model: FlatPerson
     parse: (response) ->
@@ -320,6 +321,7 @@ require [
       @$el.html $("#view-loading").html()
       peopleSearchResultsView = new PeopleSearchResultsView()
       queryString = $(e.currentTarget).serialize()
+      console.log queryString
       router.navigate "search/results?" + queryString,
         trigger: true
       peopleSearchResultsView.search queryString
@@ -474,11 +476,11 @@ require [
           ],
           collection: that.peopleResults
         )
-    search: (querystring) ->
+    search: (queryString) ->
       that = @
       $.when @peopleResults.fetch
         dataType: "jsonp"
-        url: "/peoplesearch?" + querystring
+        url: "/peoplesearch?" + queryString
       .done ->
         that.render()
     render: ->
