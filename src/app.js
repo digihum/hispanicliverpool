@@ -342,10 +342,9 @@
       searchResults: function(e) {
         var peopleSearchResultsView, queryString;
         e.preventDefault();
-        this.$el.html($("#view-loading").html());
         peopleSearchResultsView = new PeopleSearchResultsView();
         queryString = $(e.currentTarget).serialize();
-        console.log(queryString);
+        this.$el.html($("#view-loading").html());
         router.navigate("search/results?" + queryString, {
           trigger: true
         });

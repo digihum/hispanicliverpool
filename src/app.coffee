@@ -318,10 +318,9 @@ require [
 
     searchResults: (e) ->
       e.preventDefault()
-      @$el.html $("#view-loading").html()
       peopleSearchResultsView = new PeopleSearchResultsView()
       queryString = $(e.currentTarget).serialize()
-      console.log queryString
+      @$el.html $("#view-loading").html()
       router.navigate "search/results?" + queryString,
         trigger: true
       peopleSearchResultsView.search queryString
